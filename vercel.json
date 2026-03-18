@@ -1,0 +1,8 @@
+{
+    "rewrites": [
+        {
+            "source": "/",
+            "destination": "/pingpong_home.html"
+        }
+    ]
+}
