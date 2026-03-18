@@ -4,14 +4,8 @@
 // ═══════════════════════════════════════════════════════
 
 // ── 1. 配置（填入你的 Supabase 项目信息）──────────────
-// 优先读取 setup.html 写入的配置，再读硬编码（直接改这两行也可以）
-const SUPABASE_URL  = localStorage.getItem('pp_supabase_url')  || 'https://ypoacsocjijnjrsambrl.supabase.co';
-const SUPABASE_ANON = localStorage.getItem('pp_supabase_anon') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlwb2Fjc29jamlqbmpyc2FtYnJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4MjQzODEsImV4cCI6MjA4OTQwMDM4MX0.N_08SP_4V734nbpVejkNZrZkhQGq99_ZH20Um-arrk0';
-
-// 未配置时给出提示
-if (SUPABASE_URL === 'YOUR_SUPABASE_URL') {
-  console.warn('[乒乓之家] 未配置 Supabase，请先打开 setup.html 填写配置，或直接编辑 supabase.js 顶部两行。');
-}
+const SUPABASE_URL  = 'https://ypoacsocjijnjrsambrl.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlwb2Fjc29jamlqbmpyc2FtYnJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4MjQzODEsImV4cCI6MjA4OTQwMDM4MX0.N_08SP_4V734nbpVejkNZrZkhQGq99_ZH20Um-arrk0';
 
 // ── 2. 加载 Supabase SDK ────────────────────────────────
 (function loadSDK() {
