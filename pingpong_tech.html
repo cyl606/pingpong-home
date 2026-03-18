@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>乒乓之家 · 技术架构</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>html{scroll-padding-top:96px}
+:root{
+  --jin:#C8A84B;--jin-l:rgba(200,168,75,.1);--jin-d:#7A601A;
+  --green:#3A9E6A;--green-l:rgba(58,158,106,.1);
+  --blue:#2A7EC8;--blue-l:rgba(42,126,200,.1);
+  --red:#C0392B;--red-l:rgba(192,57,43,.1);
+  --pur:#7C5ABF;--pur-l:rgba(124,90,191,.1);
+  --cyan:#2AACBF;--cyan-l:rgba(42,172,191,.1);
+  --bg:#090B0E;--bg2:#0F1218;--bg3:#161B22;--bg4:#1E242E;--bg5:#262E3A;
+  --text:#E8EDF2;--text2:#9DAAB8;--text3:#5A6880;--text4:#3A4455;
+  --bd:rgba(255,255,255,.06);--bd2:rgba(255,255,255,.1);
+  --r:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse 60% 40% at 70% 0%,rgba(42,126,200,.05) 0%,transparent 55%),
+  radial-gradient(ellipse 40% 50% at 10% 80%,rgba(58,158,106,.04) 0%,transparent 55%);
+  pointer-events:none;z-index:0;}
+/* Subtle grid pattern */
+body::after{content:'';position:fixed;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.015) 1px,transparent 1px);
+  background-size:40px 40px;pointer-events:none;z-index:0;}
+
+/* ── NAV ── */
+nav{display:flex;align-items:center;border-bottom:1px solid var(--bd);position:sticky;top:48px;z-index:100;background:rgba(9,11,14,.92);backdrop-filter:blur(14px);}
+.logo{font-family:'Noto Serif SC',serif;font-size:18px;font-weight:700;letter-spacing:.05em;
+  background:linear-gradient(135deg,var(--jin) 0%,#E8C878 60%,var(--jin) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  padding:14px 20px 14px 28px;border-right:1px solid var(--bd);white-space:nowrap;}
+.nav-tabs{display:flex;flex:1;overflow-x:auto;}
+.nav-tab{padding:14px 18px;font-size:13px;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;font-family:'DM Mono',monospace;}
+.nav-tab:hover{color:var(--text);}
+.nav-tab.active{color:var(--jin);border-bottom-color:var(--jin);}
+.nav-right{padding:0 20px;border-left:1px solid var(--bd);display:flex;align-items:center;gap:8px;}
+.env-badge{padding:4px 12px;border-radius:12px;font-size:11px;font-family:'DM Mono',monospace;background:var(--green-l);color:var(--green);border:1px solid rgba(58,158,106,.25);}
+
+/* ── LAYOUT ── */
+.main{display:flex;flex:1;overflow:hidden;position:relative;z-index:1;}
+.sidebar{width:200px;flex-shrink:0;border-right:1px solid var(--bd);padding:16px 10px;overflow-y:auto;}
+.content{flex:1;overflow-y:auto;}
+.s-sec{font-size:9px;letter-spacing:.2em;color:var(--text4);padding:12px 10px 5px;}
+.slink{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;font-size:12px;color:var(--text3);cursor:pointer;transition:all .15s;font-family:'DM Mono',monospace;}
+.slink:hover{background:var(--bg3);color:var(--text2);}
+.slink.active{background:var(--jin-l);color:var(--jin);}
+.slink-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+
+/* ── PANELS ── */
+.panel{display:none;padding:28px 32px;} .panel.active{display:block;}
+
+/* ── COMMON ── */
+.p-header{margin-bottom:28px;}
+.p-tag{font-size:9px;letter-spacing:.25em;color:var(--jin);margin-bottom:8px;font-family:'DM Mono',monospace;}
+.p-title{font-family:'Noto Serif SC',serif;font-size:24px;font-weight:600;margin-bottom:6px;}
+.p-sub{font-size:13px;color:var(--text2);line-height:1.7;}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+
+.card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:18px;}
+.card-title{font-size:12px;font-weight:500;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.card-title .ct-badge{font-size:10px;padding:2px 8px;border-radius:8px;font-family:'DM Mono',monospace;}
+
+/* CODE BLOCK */
+.code-block{background:var(--bg3);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:16px;}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--bd);background:var(--bg4);}
+.code-lang{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);}
+.code-copy{font-size:10px;color:var(--text3);cursor:pointer;padding:2px 8px;border-radius:6px;border:1px solid var(--bd);background:transparent;font-family:inherit;transition:all .2s;}
+.code-copy:hover{border-color:var(--jin);color:var(--jin);}
+.code-body{padding:16px;overflow-x:auto;}
+.code-body pre{font-family:'DM Mono',monospace;font-size:12px;line-height:1.7;color:var(--text2);}
+.kw{color:#79C0FF;} .str{color:#A5D6A7;} .cm{color:#4A5568;font-style:italic;}
+.fn{color:#E8A87C;} .num{color:#F8C291;} .op{color:#C9D1D9;}
+.ty{color:#C3E88D;} .dec{color:#BB86FC;}
+
+/* SCHEMA TABLE */
+.schema-table{width:100%;border-collapse:collapse;font-size:12px;font-family:'DM Mono',monospace;}
+.schema-table th{font-size:10px;letter-spacing:.1em;color:var(--text3);padding:6px 12px;text-align:left;border-bottom:1px solid var(--bd);background:var(--bg4);}
+.schema-table td{padding:8px 12px;border-bottom:1px solid var(--bd);vertical-align:middle;}
+.schema-table tr:last-child td{border-bottom:none;}
+.schema-table tbody tr:hover{background:var(--bg3);}
+.col-type{color:var(--cyan);} .col-pk{color:var(--jin);} .col-fk{color:var(--pur);}
+.col-null{color:var(--text4);} .col-req{color:var(--green);}
+.field-desc{font-size:11px;color:var(--text3);margin-top:2px;font-family:'Noto Sans SC',sans-serif;}
+
+/* TECH STACK CARDS */
+.tech-card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:16px;transition:all .2s;cursor:default;}
+.tech-card:hover{border-color:var(--bd2);transform:translateY(-2px);}
+.tc-icon{font-size:24px;margin-bottom:10px;display:block;}
+.tc-name{font-size:13px;font-weight:500;margin-bottom:3px;}
+.tc-role{font-size:11px;color:var(--text3);margin-bottom:8px;}
+.tc-badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-family:'DM Mono',monospace;}
+
+/* API ENDPOINT */
+.endpoint{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);margin-bottom:10px;overflow:hidden;cursor:pointer;transition:border-color .2s;}
+.endpoint:hover{border-color:var(--bd2);}
+.ep-header{display:flex;align-items:center;gap:10px;padding:12px 16px;}
+.ep-method{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;padding:3px 8px;border-radius:6px;min-width:44px;text-align:center;}
+.get{background:var(--green-l);color:var(--green);}
+.post{background:var(--blue-l);color:var(--blue);}
+.put{background:var(--jin-l);color:var(--jin);}
+.delete{background:var(--red-l);color:var(--red);}
+.ep-path{font-family:'DM Mono',monospace;font-size:13px;color:var(--text);}
+.ep-desc{font-size:12px;color:var(--text3);margin-left:auto;}
+.ep-body{padding:0 16px 14px;display:none;}
+.ep-body.open{display:block;}
+.ep-params{font-size:12px;color:var(--text2);font-family:'DM Mono',monospace;margin-top:8px;}
+.ep-param{display:flex;gap:10px;padding:5px 0;border-bottom:1px solid var(--bd);}
+.ep-param:last-child{border-bottom:none;}
+.ep-pname{color:var(--cyan);min-width:120px;}
+.ep-ptype{color:var(--pur);min-width:80px;}
+.ep-pdesc{color:var(--text3);}
+
+/* FLOW DIAGRAM */
+.flow-diagram{background:var(--bg2);border:1px solid var(--bd);border-radius:12px;padding:24px;margin-bottom:16px;overflow-x:auto;}
+.flow-row{display:flex;align-items:center;gap:0;margin-bottom:12px;flex-wrap:nowrap;}
+.flow-box{background:var(--bg4);border:1px solid var(--bd);border-radius:8px;padding:8px 14px;font-size:12px;text-align:center;white-space:nowrap;min-width:90px;}
+.flow-arrow{color:var(--text4);font-size:18px;padding:0 6px;flex-shrink:0;}
+.flow-label{font-size:10px;color:var(--text3);text-align:center;margin-top:3px;}
+.flow-group{display:flex;flex-direction:column;align-items:center;}
+
+/* SECURITY / PERF ITEMS */
+.rule-list{display:flex;flex-direction:column;gap:8px;}
+.rule-item{display:flex;gap:12px;padding:12px 14px;background:var(--bg2);border:1px solid var(--bd);border-radius:8px;align-items:flex-start;}
+.rule-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+.rule-title{font-size:13px;font-weight:500;margin-bottom:3px;}
+.rule-desc{font-size:12px;color:var(--text2);line-height:1.6;}
+.rule-tag{display:inline-block;padding:1px 8px;border-radius:6px;font-size:10px;font-family:'DM Mono',monospace;margin-top:5px;}
+
+/* PROGRESS */
+.progress-section{margin-bottom:24px;}
+.prog-title{font-size:12px;font-weight:500;margin-bottom:12px;color:var(--text2);}
+.prog-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.prog-label{font-size:12px;color:var(--text2);width:140px;flex-shrink:0;}
+.prog-track{flex:1;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:3px;transition:width 1s ease;}
+.prog-pct{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);width:32px;text-align:right;}
+
+/* STATUS BADGES */
+.status-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+.status-item{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:14px;}
+.si-label{font-size:10px;color:var(--text3);margin-bottom:6px;letter-spacing:.05em;}
+.si-val{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;}
+.si-sub{font-size:10px;color:var(--text3);margin-top:3px;}
+.dot-green{display:inline-block;width:7px;height:7px;background:var(--green);border-radius:50%;margin-right:5px;box-shadow:0 0 6px rgba(58,158,106,.5);}
+.dot-yellow{display:inline-block;width:7px;height:7px;background:var(--jin);border-radius:50%;margin-right:5px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--bg3);border:1px solid rgba(200,168,75,.3);border-radius:10px;padding:10px 16px;font-size:13px;font-family:'DM Mono',monospace;transform:translateY(60px);opacity:0;transition:all .35s cubic-bezier(.34,1.56,.64,1);z-index:999;}
+.toast.show{transform:none;opacity:1;}
+</style>
+  <script src="supabase.js"></script>
+</head>
+<body>
+<!-- GLOBAL NAV --><div id="g-nav" style="position:fixed;top:0;left:0;right:0;z-index:9999;background:rgba(8,8,8,0.96);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;height:48px;padding:0 24px;gap:0;font-family:Noto Sans SC,sans-serif"><a href="pingpong_home.html" id="gnav-home" style="font-family:Noto Serif SC,serif;font-size:17px;font-weight:700;letter-spacing:.05em;background:linear-gradient(135deg,#C8A84B,#E8C878,#C8A84B);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none;padding-right:20px;border-right:1px solid rgba(255,255,255,0.08);margin-right:4px;white-space:nowrap">乒乓之家</a><a href="pingpong_register.html" class="gn" style="padding:0 14px;font-size:12px;color:rgba(200,200,200,0.6);text-decoration:none;height:48px;display:flex;align-items:center;transition:color .2s;white-space:nowrap">注册/登录</a><a href="pingpong_level.html" class="gn" style="padding:0 14px;font-size:12px;color:rgba(200,200,200,0.6);text-decoration:none;height:48px;display:flex;align-items:center;transition:color .2s;white-space:nowrap">等级系统</a><a href="pingpong_tournament.html" class="gn" style="padding:0 14px;font-size:12px;color:rgba(200,200,200,0.6);text-decoration:none;height:48px;display:flex;align-items:center;transition:color .2s;white-space:nowrap">赛事大厅</a><a href="pingpong_community.html" class="gn" style="padding:0 14px;font-size:12px;color:rgba(200,200,200,0.6);text-decoration:none;height:48px;display:flex;align-items:center;transition:color .2s;white-space:nowrap">社区</a><a href="pingpong_tech.html" class="gn" style="padding:0 14px;font-size:12px;color:rgba(200,200,200,0.6);text-decoration:none;height:48px;display:flex;align-items:center;transition:color .2s;white-space:nowrap">技术架构</a><div style="flex:1"></div><a href="pingpong_register.html" style="padding:7px 18px;background:linear-gradient(135deg,#7A601A,#C8A84B);border-radius:20px;font-size:12px;font-weight:600;color:#1A1000;text-decoration:none;white-space:nowrap">免费注册</a></div><style>#g-nav .gn:hover{color:#C8A84B!important}body{padding-top:48px!important}</style>
+
+<nav>
+  <div class="logo">乒乓之家</div>
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="switchTab(0,this)">技术栈</div>
+    <div class="nav-tab" onclick="switchTab(1,this)">数据模型</div>
+    <div class="nav-tab" onclick="switchTab(2,this)">API 设计</div>
+    <div class="nav-tab" onclick="switchTab(3,this)">系统架构</div>
+    <div class="nav-tab" onclick="switchTab(4,this)">安全 & 运维</div>
+    <div class="nav-tab" onclick="switchTab(5,this)">开发进度</div>
+  </div>
+  <div class="nav-right">
+    <div class="env-badge">● dev</div>
+  </div>
+</nav>
+
+<div class="main">
+<div class="sidebar">
+  <div class="s-sec">前端</div>
+  <div class="slink active" onclick="switchTab(0,null)"><div class="slink-dot" style="background:#61DAFB"></div>Next.js 15</div>
+  <div class="slink" onclick="switchTab(0,null)"><div class="slink-dot" style="background:#3178C6"></div>TypeScript</div>
+  <div class="slink" onclick="switchTab(0,null)"><div class="slink-dot" style="background:#06B6D4"></div>Tailwind CSS</div>
+  <div class="s-sec">后端</div>
+  <div class="slink" onclick="switchTab(2,null)"><div class="slink-dot" style="background:#3ECF8E"></div>Supabase</div>
+  <div class="slink" onclick="switchTab(2,null)"><div class="slink-dot" style="background:#336791"></div>PostgreSQL</div>
+  <div class="slink" onclick="switchTab(2,null)"><div class="slink-dot" style="background:#F7DF1E"></div>Edge Functions</div>
+  <div class="s-sec">基础设施</div>
+  <div class="slink" onclick="switchTab(3,null)"><div class="slink-dot" style="background:#000000;border:1px solid #444"></div>Vercel</div>
+  <div class="slink" onclick="switchTab(3,null)"><div class="slink-dot" style="background:#FF9900"></div>AWS S3</div>
+  <div class="slink" onclick="switchTab(3,null)"><div class="slink-dot" style="background:#FF6B6B"></div>Upstash Redis</div>
+  <div class="s-sec">第三方</div>
+  <div class="slink" onclick="switchTab(4,null)"><div class="slink-dot" style="background:#7289DA"></div>开球网 API</div>
+  <div class="slink" onclick="switchTab(4,null)"><div class="slink-dot" style="background:#09B83E"></div>微信登录</div>
+  <div class="slink" onclick="switchTab(4,null)"><div class="slink-dot" style="background:#1989FA"></div>高德地图</div>
+</div>
+
+<div class="content">
+
+<!-- ══ PANEL 0: 技术栈 ══ -->
+<div class="panel active" id="panel-0">
+  <div class="p-header">
+    <div class="p-tag">TECH STACK</div>
+    <div class="p-title">技术选型</div>
+    <div class="p-sub">以 Next.js + Supabase 为核心，追求开发速度与可扩展性的平衡。</div>
+  </div>
+
+  <div style="margin-bottom:6px;font-size:11px;letter-spacing:.1em;color:var(--text3)">前端层</div>
+  <div class="grid-4" style="margin-bottom:24px">
+    <div class="tech-card"><span class="tc-icon">⚛️</span><div class="tc-name">Next.js 15</div><div class="tc-role">全栈框架，App Router</div><span class="tc-badge" style="background:rgba(97,218,251,.1);color:#61DAFB">核心</span></div>
+    <div class="tech-card"><span class="tc-icon">🔷</span><div class="tc-name">TypeScript</div><div class="tc-role">类型安全，减少 Bug</div><span class="tc-badge" style="background:rgba(49,120,198,.1);color:#3178C6">必选</span></div>
+    <div class="tech-card"><span class="tc-icon">🎨</span><div class="tc-name">Tailwind CSS</div><div class="tc-role">原子化样式系统</div><span class="tc-badge" style="background:rgba(6,182,212,.1);color:#06B6D4">UI</span></div>
+    <div class="tech-card"><span class="tc-icon">🧩</span><div class="tc-name">shadcn/ui</div><div class="tc-role">可访问组件库</div><span class="tc-badge" style="background:var(--bg4);color:var(--text3)">UI</span></div>
+  </div>
+
+  <div style="margin-bottom:6px;font-size:11px;letter-spacing:.1em;color:var(--text3)">后端 & 数据库</div>
+  <div class="grid-4" style="margin-bottom:24px">
+    <div class="tech-card"><span class="tc-icon">🟢</span><div class="tc-name">Supabase</div><div class="tc-role">BaaS，实时订阅</div><span class="tc-badge" style="background:rgba(62,207,142,.1);color:#3ECF8E">核心</span></div>
+    <div class="tech-card"><span class="tc-icon">🐘</span><div class="tc-name">PostgreSQL</div><div class="tc-role">关系型数据库</div><span class="tc-badge" style="background:rgba(51,103,145,.1);color:#336791">数据</span></div>
+    <div class="tech-card"><span class="tc-icon">⚡</span><div class="tc-name">Edge Functions</div><div class="tc-role">全球分布式函数</div><span class="tc-badge" style="background:var(--jin-l);color:var(--jin)">API</span></div>
+    <div class="tech-card"><span class="tc-icon">🔴</span><div class="tc-name">Upstash Redis</div><div class="tc-role">缓存，排行榜，限流</div><span class="tc-badge" style="background:rgba(255,107,107,.1);color:#FF6B6B">缓存</span></div>
+  </div>
+
+  <div style="margin-bottom:6px;font-size:11px;letter-spacing:.1em;color:var(--text3)">基础设施 & 第三方</div>
+  <div class="grid-4" style="margin-bottom:24px">
+    <div class="tech-card"><span class="tc-icon">▲</span><div class="tc-name">Vercel</div><div class="tc-role">部署，CDN，边缘</div><span class="tc-badge" style="background:var(--bg4);color:var(--text3)">部署</span></div>
+    <div class="tech-card"><span class="tc-icon">🪣</span><div class="tc-name">AWS S3</div><div class="tc-role">图片 / 视频存储</div><span class="tc-badge" style="background:rgba(255,153,0,.1);color:#FF9900">存储</span></div>
+    <div class="tech-card"><span class="tc-icon">📍</span><div class="tc-name">高德地图</div><div class="tc-role">场馆位置服务</div><span class="tc-badge" style="background:rgba(25,137,250,.1);color:#1989FA">地图</span></div>
+    <div class="tech-card"><span class="tc-icon">🔔</span><div class="tc-name">Resend</div><div class="tc-role">事务邮件发送</div><span class="tc-badge" style="background:var(--bg4);color:var(--text3)">通知</span></div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">package.json · 核心依赖</span><button class="code-copy" onclick="copyCode(this)">复制</button></div>
+    <div class="code-body"><pre><span class="cm">// 核心依赖</span>
+<span class="str">"dependencies"</span><span class="op">: {</span>
+  <span class="str">"next"</span><span class="op">:</span>               <span class="str">"^15.0.0"</span><span class="op">,</span>
+  <span class="str">"@supabase/supabase-js"</span><span class="op">:</span> <span class="str">"^2.45.0"</span><span class="op">,</span>
+  <span class="str">"@supabase/ssr"</span><span class="op">:</span>      <span class="str">"^0.5.0"</span><span class="op">,</span>
+  <span class="str">"zod"</span><span class="op">:</span>               <span class="str">"^3.23.0"</span><span class="op">,</span>   <span class="cm">// 数据校验</span>
+  <span class="str">"zustand"</span><span class="op">:</span>           <span class="str">"^4.5.0"</span><span class="op">,</span>   <span class="cm">// 全局状态</span>
+  <span class="str">"@tanstack/react-query"</span><span class="op">:</span> <span class="str">"^5.0.0"</span><span class="op">,</span> <span class="cm">// 数据获取 & 缓存</span>
+  <span class="str">"dayjs"</span><span class="op">:</span>              <span class="str">"^1.11.0"</span><span class="op">,</span>  <span class="cm">// 时间处理</span>
+  <span class="str">"@upstash/redis"</span><span class="op">:</span>     <span class="str">"^1.34.0"</span>   <span class="cm">// Redis 客户端</span>
+<span class="op">}</span></pre></div>
+  </div>
+</div>
+
+<!-- ══ PANEL 1: 数据模型 ══ -->
+<div class="panel" id="panel-1">
+  <div class="p-header">
+    <div class="p-tag">DATABASE SCHEMA</div>
+    <div class="p-title">数据模型设计</div>
+    <div class="p-sub">PostgreSQL 关系型数据库，完整 RLS 策略保护用户数据隔离。</div>
+  </div>
+
+  <!-- users -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">
+      <span style="color:var(--jin)">users</span>
+      <span class="ct-badge" style="background:var(--jin-l);color:var(--jin)">主表</span>
+    </div>
+    <table class="schema-table">
+      <thead><tr><th>字段</th><th>类型</th><th>约束</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td class="col-pk">id</td><td class="col-type">uuid</td><td class="col-req">PK · NOT NULL</td><td>用户唯一 ID，对应 auth.users</td></tr>
+        <tr><td>nickname</td><td class="col-type">varchar(32)</td><td class="col-req">NOT NULL</td><td>球场昵称</td></tr>
+        <tr><td>city</td><td class="col-type">varchar(20)</td><td class="col-null">nullable</td><td>所在城市</td></tr>
+        <tr><td>element</td><td class="col-type">element_type</td><td class="col-null">nullable</td><td>五行类型 ENUM(jin, mu, shui, huo, tu)</td></tr>
+        <tr><td>element_scores</td><td class="col-type">jsonb</td><td class="col-null">nullable</td><td><code style="color:var(--cyan)">{"jin":3,"mu":1,"shui":2,"huo":5,"tu":0}</code></td></tr>
+        <tr><td>level</td><td class="col-type">int2</td><td class="col-req">DEFAULT 1</td><td>当前等级 1–100</td></tr>
+        <tr><td>kaiqiu_id</td><td class="col-type">varchar(64)</td><td class="col-null">nullable · UNIQUE</td><td>开球网绑定账号 ID</td></tr>
+        <tr><td>kaiqiu_score</td><td class="col-type">int4</td><td class="col-null">nullable</td><td>最新开球网积分</td></tr>
+        <tr><td>kaiqiu_synced_at</td><td class="col-type">timestamptz</td><td class="col-null">nullable</td><td>最近同步时间</td></tr>
+        <tr><td>site_points</td><td class="col-type">int4</td><td class="col-req">DEFAULT 0</td><td>站内积分</td></tr>
+        <tr><td>avatar_url</td><td class="col-type">text</td><td class="col-null">nullable</td><td>头像 URL（S3）</td></tr>
+        <tr><td>created_at</td><td class="col-type">timestamptz</td><td class="col-req">DEFAULT now()</td><td>注册时间</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- tournaments -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">
+      <span style="color:var(--blue)">tournaments</span>
+      <span class="ct-badge" style="background:var(--blue-l);color:var(--blue)">赛事</span>
+    </div>
+    <table class="schema-table">
+      <thead><tr><th>字段</th><th>类型</th><th>约束</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td class="col-pk">id</td><td class="col-type">uuid</td><td class="col-req">PK</td><td>赛事 ID</td></tr>
+        <tr><td>name</td><td class="col-type">varchar(100)</td><td class="col-req">NOT NULL</td><td>赛事名称</td></tr>
+        <tr><td>format</td><td class="col-type">tournament_format</td><td class="col-req">NOT NULL</td><td>ENUM(single_elim, double_elim, round_robin, group_knockout)</td></tr>
+        <tr><td>status</td><td class="col-type">tournament_status</td><td class="col-req">DEFAULT 'draft'</td><td>ENUM(draft, open, in_progress, finished)</td></tr>
+        <tr><td>organizer_id</td><td class="col-type">uuid</td><td class="col-fk">FK → users.id</td><td>创办人</td></tr>
+        <tr><td>level_min</td><td class="col-type">int2</td><td class="col-null">nullable</td><td>最低参赛等级</td></tr>
+        <tr><td>level_max</td><td class="col-type">int2</td><td class="col-null">nullable</td><td>最高参赛等级</td></tr>
+        <tr><td>max_players</td><td class="col-type">int2</td><td class="col-req">NOT NULL</td><td>最大参赛人数</td></tr>
+        <tr><td>venue</td><td class="col-type">varchar(200)</td><td class="col-null">nullable</td><td>举办地点</td></tr>
+        <tr><td>starts_at</td><td class="col-type">timestamptz</td><td class="col-req">NOT NULL</td><td>比赛开始时间</td></tr>
+        <tr><td>reg_deadline</td><td class="col-type">timestamptz</td><td class="col-req">NOT NULL</td><td>报名截止</td></tr>
+        <tr><td>is_ranked</td><td class="col-type">boolean</td><td class="col-req">DEFAULT true</td><td>是否计入开球网积分</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- matches -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span style="color:var(--green)">matches</span><span class="ct-badge" style="background:var(--green-l);color:var(--green)">对阵</span></div>
+      <table class="schema-table">
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td class="col-pk">id</td><td class="col-type">uuid</td><td>对局 ID</td></tr>
+          <tr><td class="col-fk">tournament_id</td><td class="col-type">uuid</td><td>所属赛事</td></tr>
+          <tr><td class="col-fk">player_a_id</td><td class="col-type">uuid</td><td>选手A</td></tr>
+          <tr><td class="col-fk">player_b_id</td><td class="col-type">uuid</td><td>选手B</td></tr>
+          <tr><td>round</td><td class="col-type">int2</td><td>轮次</td></tr>
+          <tr><td>score_a</td><td class="col-type">int2</td><td>A得分</td></tr>
+          <tr><td>score_b</td><td class="col-type">int2</td><td>B得分</td></tr>
+          <tr><td class="col-fk">winner_id</td><td class="col-type">uuid</td><td>胜者</td></tr>
+          <tr><td>played_at</td><td class="col-type">timestamptz</td><td>比赛时间</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title"><span style="color:var(--pur)">posts & follows</span><span class="ct-badge" style="background:var(--pur-l);color:var(--pur)">社区</span></div>
+      <table class="schema-table">
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td class="col-pk">id</td><td class="col-type">uuid</td><td>帖子 ID</td></tr>
+          <tr><td class="col-fk">author_id</td><td class="col-type">uuid</td><td>作者</td></tr>
+          <tr><td>body</td><td class="col-type">text</td><td>正文内容</td></tr>
+          <tr><td>tag</td><td class="col-type">post_tag</td><td>ENUM(tips,match,gear,qa)</td></tr>
+          <tr><td>element</td><td class="col-type">element_type</td><td>关联五行</td></tr>
+          <tr><td>likes_count</td><td class="col-type">int4</td><td>点赞数（缓存）</td></tr>
+          <tr><td>—</td><td class="col-type">—</td><td style="color:var(--text4)">follows(follower_id, followee_id)</td></tr>
+          <tr><td>—</td><td class="col-type">—</td><td style="color:var(--text4)">post_likes(user_id, post_id)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="code-block" style="margin-top:4px">
+    <div class="code-header"><span class="code-lang">SQL · RLS 策略示例</span><button class="code-copy" onclick="copyCode(this)">复制</button></div>
+    <div class="code-body"><pre><span class="cm">-- 用户只能修改自己的档案</span>
+<span class="kw">CREATE POLICY</span> <span class="str">"users_update_own"</span> <span class="kw">ON</span> users
+  <span class="kw">FOR UPDATE USING</span> (auth.uid() = id);
+
+<span class="cm">-- 帖子：公开读，登录后可写</span>
+<span class="kw">CREATE POLICY</span> <span class="str">"posts_read_all"</span> <span class="kw">ON</span> posts
+  <span class="kw">FOR SELECT USING</span> (<span class="kw">true</span>);
+<span class="kw">CREATE POLICY</span> <span class="str">"posts_insert_auth"</span> <span class="kw">ON</span> posts
+  <span class="kw">FOR INSERT WITH CHECK</span> (auth.uid() = author_id);
+
+<span class="cm">-- 等级自动计算触发器</span>
+<span class="kw">CREATE OR REPLACE FUNCTION</span> <span class="fn">sync_level</span>() <span class="kw">RETURNS TRIGGER AS</span> <span class="str">$$</span>
+<span class="kw">BEGIN</span>
+  NEW.level := <span class="fn">LEAST</span>(<span class="num">100</span>, <span class="fn">GREATEST</span>(<span class="num">1</span>,
+    <span class="fn">FLOOR</span>((NEW.kaiqiu_score - <span class="num">1000</span>) / <span class="num">10</span>)::int2));
+  <span class="kw">RETURN</span> NEW;
+<span class="kw">END;</span>
+<span class="str">$$</span> <span class="kw">LANGUAGE</span> plpgsql;
+
+<span class="kw">CREATE TRIGGER</span> on_kaiqiu_score_update
+  <span class="kw">BEFORE UPDATE OF</span> kaiqiu_score <span class="kw">ON</span> users
+  <span class="kw">FOR EACH ROW EXECUTE FUNCTION</span> <span class="fn">sync_level</span>();</pre></div>
+  </div>
+</div>
+
+<!-- ══ PANEL 2: API 设计 ══ -->
+<div class="panel" id="panel-2">
+  <div class="p-header">
+    <div class="p-tag">API DESIGN · RESTful + Realtime</div>
+    <div class="p-title">API 接口设计</div>
+    <div class="p-sub">Next.js Route Handlers + Supabase Edge Functions。点击接口查看参数详情。</div>
+  </div>
+
+  <div style="margin-bottom:8px;font-size:11px;letter-spacing:.1em;color:var(--text3)">用户 & 认证</div>
+  <div id="eps-user"></div>
+  <div style="margin:16px 0 8px;font-size:11px;letter-spacing:.1em;color:var(--text3)">赛事管理</div>
+  <div id="eps-tournament"></div>
+  <div style="margin:16px 0 8px;font-size:11px;letter-spacing:.1em;color:var(--text3)">开球网同步</div>
+  <div id="eps-kaiqiu"></div>
+  <div style="margin:16px 0 8px;font-size:11px;letter-spacing:.1em;color:var(--text3)">社区</div>
+  <div id="eps-community"></div>
+
+  <div class="code-block" style="margin-top:20px">
+    <div class="code-header"><span class="code-lang">TypeScript · API 响应封装</span><button class="code-copy" onclick="copyCode(this)">复制</button></div>
+    <div class="code-body"><pre><span class="cm">// lib/api.ts — 统一响应格式</span>
+<span class="kw">export type</span> <span class="ty">ApiResponse</span><span class="op">&lt;</span><span class="ty">T</span><span class="op">&gt;</span> <span class="op">= {</span>
+  <span class="fn">data</span><span class="op">:</span>    <span class="ty">T</span> <span class="op">|</span> <span class="ty">null</span>
+  <span class="fn">error</span><span class="op">:</span>   <span class="ty">string</span> <span class="op">|</span> <span class="ty">null</span>
+  <span class="fn">status</span><span class="op">:</span>  <span class="ty">number</span>
+<span class="op">}</span>
+
+<span class="kw">export function</span> <span class="fn">ok</span><span class="op">&lt;</span><span class="ty">T</span><span class="op">&gt;</span>(data<span class="op">:</span> <span class="ty">T</span>)<span class="op">:</span> <span class="ty">Response</span> <span class="op">{</span>
+  <span class="kw">return</span> <span class="ty">Response</span>.<span class="fn">json</span>(<span class="op">{</span> data, error<span class="op">:</span> <span class="kw">null</span>, status<span class="op">:</span> <span class="num">200</span> <span class="op">})</span>
+<span class="op">}</span>
+<span class="kw">export function</span> <span class="fn">err</span>(msg<span class="op">:</span> <span class="ty">string</span>, status <span class="op">=</span> <span class="num">400</span>)<span class="op">:</span> <span class="ty">Response</span> <span class="op">{</span>
+  <span class="kw">return</span> <span class="ty">Response</span>.<span class="fn">json</span>(<span class="op">{</span> data<span class="op">:</span> <span class="kw">null</span>, error<span class="op">:</span> msg, status <span class="op">},</span> <span class="op">{</span> status <span class="op">})</span>
+<span class="op">}</span>
+
+<span class="cm">// 开球网积分同步 Edge Function</span>
+<span class="kw">export async function</span> <span class="fn">syncKaiqiuScore</span>(userId<span class="op">:</span> <span class="ty">string</span>) <span class="op">{</span>
+  <span class="kw">const</span> { data: user } <span class="op">=</span> <span class="kw">await</span> supabase
+    .<span class="fn">from</span>(<span class="str">'users'</span>).<span class="fn">select</span>(<span class="str">'kaiqiu_id'</span>).<span class="fn">eq</span>(<span class="str">'id'</span>, userId).<span class="fn">single</span>()
+  <span class="kw">if</span> (<span class="op">!</span>user?.kaiqiu_id) <span class="kw">return</span>
+
+  <span class="kw">const</span> score <span class="op">=</span> <span class="kw">await</span> <span class="fn">fetchKaiqiuScore</span>(user.kaiqiu_id) <span class="cm">// 调开球网 API</span>
+  <span class="kw">await</span> supabase.<span class="fn">from</span>(<span class="str">'users'</span>).<span class="fn">update</span>(<span class="op">{</span>
+    kaiqiu_score<span class="op">:</span> score,
+    kaiqiu_synced_at<span class="op">:</span> <span class="kw">new</span> <span class="ty">Date</span>().<span class="fn">toISOString</span>()
+  <span class="op">}</span>).<span class="fn">eq</span>(<span class="str">'id'</span>, userId) <span class="cm">// 触发器自动计算 level</span>
+<span class="op">}</span></pre></div>
+  </div>
+</div>
+
+<!-- ══ PANEL 3: 系统架构 ══ -->
+<div class="panel" id="panel-3">
+  <div class="p-header">
+    <div class="p-tag">SYSTEM ARCHITECTURE</div>
+    <div class="p-title">系统架构图</div>
+    <div class="p-sub">请求从 CDN 边缘进入，经 Next.js 服务端处理，按业务类型路由至不同后端服务。</div>
+  </div>
+
+  <div class="flow-diagram">
+    <div style="font-size:11px;color:var(--text3);margin-bottom:16px;letter-spacing:.08em">请求链路</div>
+    <div class="flow-row">
+      <div class="flow-group"><div class="flow-box" style="border-color:rgba(200,168,75,.3);color:var(--jin)">🌐 用户浏览器</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-group"><div class="flow-box" style="border-color:rgba(255,255,255,.15)">▲ Vercel Edge CDN</div><div class="flow-label">静态资源加速</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-group"><div class="flow-box" style="border-color:rgba(97,218,251,.3);color:#61DAFB">Next.js App</div><div class="flow-label">SSR / API Routes</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-group"><div class="flow-box" style="border-color:rgba(255,107,107,.3);color:#FF6B6B">Redis 缓存</div><div class="flow-label">排行榜 / 限流</div></div>
+    </div>
+    <div class="flow-row" style="margin-top:8px;padding-left:260px">
+      <div class="flow-arrow" style="transform:rotate(90deg)">→</div>
+    </div>
+    <div class="flow-row" style="padding-left:220px">
+      <div class="flow-group"><div class="flow-box" style="border-color:rgba(62,207,142,.3);color:#3ECF8E">Supabase</div><div class="flow-label">PostgreSQL + Auth + Storage + Realtime</div></div>
+      <div class="flow-arrow">←→</div>
+      <div class="flow-group"><div class="flow-box" style="border-color:rgba(255,153,0,.3);color:#FF9900">AWS S3</div><div class="flow-label">图片 / 视频</div></div>
+      <div class="flow-arrow">←→</div>
+      <div class="flow-group"><div class="flow-box" style="border-color:rgba(42,172,191,.3);color:var(--cyan)">开球网 API</div><div class="flow-label">积分同步</div></div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">实时功能（Supabase Realtime）</div>
+      <div class="rule-list">
+        <div class="rule-item"><div class="rule-icon">📡</div><div><div class="rule-title">赛事对阵实时更新</div><div class="rule-desc">比赛结果录入后，对阵表即时推送至所有观看者，无需刷新。</div><span class="rule-tag" style="background:var(--cyan-l);color:var(--cyan)">REALTIME</span></div></div>
+        <div class="rule-item"><div class="rule-icon">💬</div><div><div class="rule-title">私信实时收发</div><div class="rule-desc">基于 Postgres Changes，监听 messages 表实现双向聊天。</div><span class="rule-tag" style="background:var(--cyan-l);color:var(--cyan)">REALTIME</span></div></div>
+        <div class="rule-item"><div class="rule-icon">🏆</div><div><div class="rule-title">排行榜实时刷新</div><div class="rule-desc">使用 Redis Sorted Set 维护积分榜，Supabase 触发器在赛后写入。</div><span class="rule-tag" style="background:var(--red-l);color:#FF6B6B">REDIS</span></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">定时任务（Cron）</div>
+      <div class="rule-list">
+        <div class="rule-item"><div class="rule-icon">🔄</div><div><div class="rule-title">开球网积分同步</div><div class="rule-desc">每天凌晨 2:00 批量拉取所有已绑定用户的最新积分，更新等级。</div><span class="rule-tag" style="background:var(--jin-l);color:var(--jin)">DAILY</span></div></div>
+        <div class="rule-item"><div class="rule-icon">📧</div><div><div class="rule-title">赛事提醒邮件</div><div class="rule-desc">比赛前 24 小时通过 Resend 向已报名选手发送提醒邮件。</div><span class="rule-tag" style="background:var(--blue-l);color:var(--blue)">HOURLY</span></div></div>
+        <div class="rule-item"><div class="rule-icon">🧹</div><div><div class="rule-title">过期草稿清理</div><div class="rule-desc">清理 30 天以上未发布的草稿赛事，释放存储空间。</div><span class="rule-tag" style="background:var(--bg4);color:var(--text3)">WEEKLY</span></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PANEL 4: 安全 & 运维 ══ -->
+<div class="panel" id="panel-4">
+  <div class="p-header">
+    <div class="p-tag">SECURITY & DEVOPS</div>
+    <div class="p-title">安全策略 & 运维</div>
+    <div class="p-sub">多层防护体系，保障用户数据安全与平台稳定性。</div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:0">
+    <div>
+      <div style="font-size:11px;letter-spacing:.1em;color:var(--text3);margin-bottom:10px">认证 & 权限</div>
+      <div class="rule-list" style="margin-bottom:16px">
+        <div class="rule-item"><div class="rule-icon">🔐</div><div><div class="rule-title">Supabase Auth</div><div class="rule-desc">邮箱密码 + 微信 OAuth 2.0，JWT 令牌有效期 1 小时，Refresh Token 30 天。</div><span class="rule-tag" style="background:var(--green-l);color:var(--green)">AUTH</span></div></div>
+        <div class="rule-item"><div class="rule-icon">🛡️</div><div><div class="rule-title">行级安全 (RLS)</div><div class="rule-desc">所有表均启用 RLS，策略确保用户只能读写自己有权访问的数据。</div><span class="rule-tag" style="background:var(--blue-l);color:var(--blue)">DB</span></div></div>
+        <div class="rule-item"><div class="rule-icon">👤</div><div><div class="rule-title">角色体系</div><div class="rule-desc">user（普通用户）/ referee（裁判）/ organizer（赛事主办）/ admin（管理员）。</div><span class="rule-tag" style="background:var(--pur-l);color:var(--pur)">RBAC</span></div></div>
+      </div>
+      <div style="font-size:11px;letter-spacing:.1em;color:var(--text3);margin-bottom:10px">接口防护</div>
+      <div class="rule-list">
+        <div class="rule-item"><div class="rule-icon">⏱️</div><div><div class="rule-title">Redis 限流</div><div class="rule-desc">API 限速：登录接口 5次/分钟，发帖 10次/分钟，开球网同步 1次/小时。</div><span class="rule-tag" style="background:var(--red-l);color:#FF6B6B">RATE LIMIT</span></div></div>
+        <div class="rule-item"><div class="rule-icon">🧹</div><div><div class="rule-title">输入校验</div><div class="rule-desc">所有 API 入参通过 Zod schema 校验，拒绝非法格式，防 SQL 注入。</div><span class="rule-tag" style="background:var(--jin-l);color:var(--jin)">ZOD</span></div></div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:11px;letter-spacing:.1em;color:var(--text3);margin-bottom:10px">数据保护</div>
+      <div class="rule-list" style="margin-bottom:16px">
+        <div class="rule-item"><div class="rule-icon">💾</div><div><div class="rule-title">自动备份</div><div class="rule-desc">Supabase 每日自动备份，保留 7 天。重要赛事前手动备份一次。</div><span class="rule-tag" style="background:var(--green-l);color:var(--green)">BACKUP</span></div></div>
+        <div class="rule-item"><div class="rule-icon">🔒</div><div><div class="rule-title">传输加密</div><div class="rule-desc">全站 HTTPS，数据库连接强制 SSL，S3 存储桶私有访问 + 签名 URL。</div><span class="rule-tag" style="background:var(--blue-l);color:var(--blue)">TLS</span></div></div>
+        <div class="rule-item"><div class="rule-icon">🇨🇳</div><div><div class="rule-title">隐私合规</div><div class="rule-desc">符合《个人信息保护法》，最小权限收集，支持用户注销并删除所有数据。</div><span class="rule-tag" style="background:var(--red-l);color:#FF6B6B">PIPL</span></div></div>
+      </div>
+      <div style="font-size:11px;letter-spacing:.1em;color:var(--text3);margin-bottom:10px">监控 & 告警</div>
+      <div class="rule-list">
+        <div class="rule-item"><div class="rule-icon">📊</div><div><div class="rule-title">Vercel Analytics</div><div class="rule-desc">实时监控页面性能，Core Web Vitals，P99 响应时间。</div><span class="rule-tag" style="background:var(--bg4);color:var(--text3)">MONITOR</span></div></div>
+        <div class="rule-item"><div class="rule-icon">🚨</div><div><div class="rule-title">错误追踪 (Sentry)</div><div class="rule-desc">前后端错误上报，异常率超过 1% 时触发钉钉告警。</div><span class="rule-tag" style="background:var(--red-l);color:#FF6B6B">ALERT</span></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PANEL 5: 开发进度 ══ -->
+<div class="panel" id="panel-5">
+  <div class="p-header">
+    <div class="p-tag">DEVELOPMENT PROGRESS</div>
+    <div class="p-title">开发进度追踪</div>
+    <div class="p-sub">六阶段并行开发，预计总工期 16 周。</div>
+  </div>
+
+  <div class="status-grid">
+    <div class="status-item"><div class="si-label">整体进度</div><div class="si-val" style="color:var(--jin)">38%</div><div class="si-sub">阶段 1–2 完成</div></div>
+    <div class="status-item"><div class="si-label">当前环境</div><div class="si-val"><span class="dot-green"></span><span style="font-size:14px;color:var(--green)">开发中</span></div><div class="si-sub">dev branch</div></div>
+    <div class="status-item"><div class="si-label">预计上线</div><div class="si-val" style="color:var(--text2);font-size:16px">2025 Q3</div><div class="si-sub">Beta 公测</div></div>
+    <div class="status-item"><div class="si-label">数据库迁移</div><div class="si-val"><span class="dot-green"></span><span style="font-size:14px;color:var(--green)">正常</span></div><div class="si-sub">12 migrations</div></div>
+    <div class="status-item"><div class="si-label">API 覆盖率</div><div class="si-val" style="color:var(--cyan)">72%</div><div class="si-sub">26 / 36 接口</div></div>
+    <div class="status-item"><div class="si-label">测试覆盖率</div><div class="si-val" style="color:var(--jin)">54%</div><div class="si-sub">单元 + 集成</div></div>
+  </div>
+
+  <div class="progress-section">
+    <div class="prog-title">各阶段完成度</div>
+    <div class="prog-row"><div class="prog-label">① 用户体系 & 注册</div><div class="prog-track"><div class="prog-fill" style="width:90%;background:var(--green)"></div></div><div class="prog-pct">90%</div></div>
+    <div class="prog-row"><div class="prog-label">② 等级 & 积分系统</div><div class="prog-track"><div class="prog-fill" style="width:75%;background:var(--green)"></div></div><div class="prog-pct">75%</div></div>
+    <div class="prog-row"><div class="prog-label">③ 赛事系统</div><div class="prog-track"><div class="prog-fill" style="width:50%;background:var(--jin)"></div></div><div class="prog-pct">50%</div></div>
+    <div class="prog-row"><div class="prog-label">④ 社区 & 内容</div><div class="prog-track"><div class="prog-fill" style="width:30%;background:var(--jin)"></div></div><div class="prog-pct">30%</div></div>
+    <div class="prog-row"><div class="prog-label">⑤ UI/UX & 品牌</div><div class="prog-track"><div class="prog-fill" style="width:60%;background:var(--jin)"></div></div><div class="prog-pct">60%</div></div>
+    <div class="prog-row"><div class="prog-label">⑥ 技术架构 & 运维</div><div class="prog-track"><div class="prog-fill" style="width:40%;background:var(--blue)"></div></div><div class="prog-pct">40%</div></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">近期里程碑</div>
+      <div class="rule-list">
+        <div class="rule-item"><div class="rule-icon">✅</div><div><div class="rule-title">数据库 Schema 设计完成</div><div class="rule-desc">所有核心表、索引、RLS 策略已部署至 dev 环境。</div></div></div>
+        <div class="rule-item"><div class="rule-icon">✅</div><div><div class="rule-title">五行测定功能上线</div><div class="rule-desc">6 道测定题，风格判定逻辑，徽章生成均已完成。</div></div></div>
+        <div class="rule-item"><div class="rule-icon">🔄</div><div><div class="rule-title">开球网 API 对接中</div><div class="rule-desc">已完成授权流程，积分拉取接口测试中，预计本周完成。</div></div></div>
+        <div class="rule-item"><div class="rule-icon">⏳</div><div><div class="rule-title">赛事对阵表生成算法</div><div class="rule-desc">单败淘汰已完成，双败淘汰 & 小组赛算法开发中。</div></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">技术债务 & 待优化</div>
+      <div class="rule-list">
+        <div class="rule-item"><div class="rule-icon">⚠️</div><div><div class="rule-title">帖子列表缺少游标分页</div><div class="rule-desc">目前使用 offset 分页，高并发下性能差，需改为 keyset 分页。</div><span class="rule-tag" style="background:var(--jin-l);color:var(--jin)">P1</span></div></div>
+        <div class="rule-item"><div class="rule-icon">⚠️</div><div><div class="rule-title">图片上传缺少压缩</div><div class="rule-desc">用户头像直传 S3 未做压缩处理，需接入 Sharp 或 Cloudflare Images。</div><span class="rule-tag" style="background:var(--jin-l);color:var(--jin)">P1</span></div></div>
+        <div class="rule-item"><div class="rule-icon">📝</div><div><div class="rule-title">单元测试覆盖率不足</div><div class="rule-desc">积分计算逻辑、对阵生成算法缺乏完整测试用例。</div><span class="rule-tag" style="background:var(--blue-l);color:var(--blue)">P2</span></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- content -->
+</div><!-- main -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── API ENDPOINTS DATA ── */
+const epData = {
+  user: [
+    { method:'POST', path:'/api/auth/register', desc:'用户注册', params:[
+      {n:'email',t:'string',d:'邮箱地址，唯一'},
+      {n:'password',t:'string',d:'密码，最少8位'},
+      {n:'nickname',t:'string',d:'球场昵称 1-32字'},
+    ]},
+    { method:'POST', path:'/api/auth/login', desc:'邮箱登录', params:[
+      {n:'email',t:'string',d:'邮箱'},
+      {n:'password',t:'string',d:'密码'},
+    ]},
+    { method:'PUT', path:'/api/users/element', desc:'提交五行测定结果', params:[
+      {n:'scores',t:'object',d:'{"jin":3,"huo":5,...} 各风格得分'},
+    ]},
+    { method:'GET', path:'/api/users/:id', desc:'获取用户公开档案', params:[]},
+    { method:'GET', path:'/api/users/leaderboard', desc:'全国排行榜（Redis）', params:[
+      {n:'city',t:'string?',d:'按城市筛选'},
+      {n:'element',t:'string?',d:'按五行筛选'},
+      {n:'limit',t:'number',d:'返回条数，默认50'},
+    ]},
+  ],
+  tournament: [
+    { method:'POST', path:'/api/tournaments', desc:'创建赛事', params:[
+      {n:'name',t:'string',d:'赛事名称'},
+      {n:'format',t:'enum',d:'single_elim | double_elim | round_robin | group_knockout'},
+      {n:'max_players',t:'number',d:'最大人数'},
+      {n:'starts_at',t:'ISO8601',d:'开赛时间'},
+    ]},
+    { method:'GET', path:'/api/tournaments', desc:'赛事列表（分页）', params:[
+      {n:'status',t:'enum?',d:'open | in_progress | finished'},
+      {n:'cursor',t:'string?',d:'游标分页'},
+    ]},
+    { method:'POST', path:'/api/tournaments/:id/register', desc:'报名参赛', params:[]},
+    { method:'POST', path:'/api/tournaments/:id/generate-bracket', desc:'生成对阵表', params:[]},
+    { method:'PUT', path:'/api/matches/:id/result', desc:'录入比赛成绩', params:[
+      {n:'score_a',t:'number',d:'选手A得分'},
+      {n:'score_b',t:'number',d:'选手B得分'},
+    ]},
+  ],
+  kaiqiu: [
+    { method:'POST', path:'/api/kaiqiu/bind', desc:'绑定开球网账号', params:[
+      {n:'kaiqiu_id',t:'string',d:'开球网用户名或ID'},
+    ]},
+    { method:'POST', path:'/api/kaiqiu/sync', desc:'立即同步积分（用户触发）', params:[]},
+    { method:'GET', path:'/api/kaiqiu/preview/:id', desc:'绑定前预览开球网信息', params:[]},
+  ],
+  community: [
+    { method:'GET', path:'/api/posts', desc:'帖子列表（游标分页）', params:[
+      {n:'element',t:'string?',d:'按五行风格筛选'},
+      {n:'tag',t:'string?',d:'tips | match | gear | qa'},
+      {n:'cursor',t:'string?',d:'游标'},
+    ]},
+    { method:'POST', path:'/api/posts', desc:'发帖', params:[
+      {n:'body',t:'string',d:'正文，最多2000字'},
+      {n:'tag',t:'enum',d:'帖子分类'},
+      {n:'element',t:'enum?',d:'关联五行'},
+    ]},
+    { method:'POST', path:'/api/posts/:id/like', desc:'点赞 / 取消点赞', params:[]},
+    { method:'POST', path:'/api/users/:id/follow', desc:'关注球友', params:[]},
+  ],
+};
+
+const methodClass = {GET:'get',POST:'post',PUT:'put',DELETE:'delete'};
+
+function buildEndpoints(data, containerId) {
+  const c = document.getElementById(containerId);
+  c.innerHTML = data.map((ep, i) => `
+    <div class="endpoint" onclick="toggleEp(this)">
+      <div class="ep-header">
+        <span class="ep-method ${methodClass[ep.method]}">${ep.method}</span>
+        <span class="ep-path">${ep.path}</span>
+        <span class="ep-desc">${ep.desc}</span>
+        <span style="color:var(--text4);margin-left:10px">▾</span>
+      </div>
+      ${ep.params.length ? `<div class="ep-body">
+        <div class="ep-params">
+          ${ep.params.map(p=>`<div class="ep-param">
+            <span class="ep-pname">${p.n}</span>
+            <span class="ep-ptype">${p.t}</span>
+            <span class="ep-pdesc">${p.d}</span>
+          </div>`).join('')}
+        </div>
+      </div>` : ''}
+    </div>`).join('');
+}
+
+function toggleEp(el) {
+  const body = el.querySelector('.ep-body');
+  if (body) { body.classList.toggle('open'); }
+}
+
+/* ── TABS ── */
+function switchTab(i, tab) {
+  document.querySelectorAll('.panel').forEach((p,j) => p.classList.toggle('active', j===i));
+  document.querySelectorAll('.nav-tab').forEach((t,j) => t.classList.toggle('active', j===i));
+  if (tab) { document.querySelectorAll('.slink').forEach(s=>s.classList.remove('active')); }
+}
+
+/* ── COPY ── */
+function copyCode(btn) {
+  const code = btn.closest('.code-block').querySelector('pre').innerText;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = '已复制 ✓';
+    setTimeout(() => btn.textContent = '复制', 1500);
+  });
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+/* ── INIT ── */
+buildEndpoints(epData.user, 'eps-user');
+buildEndpoints(epData.tournament, 'eps-tournament');
+buildEndpoints(epData.kaiqiu, 'eps-kaiqiu');
+buildEndpoints(epData.community, 'eps-community');
+
+/* animate progress bars on tab switch */
+document.querySelectorAll('.nav-tab')[5].addEventListener('click', () => {
+  setTimeout(() => {
+    document.querySelectorAll('.prog-fill').forEach(el => {
+      const w = el.style.width; el.style.width = '0%';
+      setTimeout(() => el.style.width = w, 50);
+    });
+  }, 50);
+});
+</script>
+
+<script>
+(function(){
+  var links = document.querySelectorAll('#g-nav .gn');
+  links.forEach(function(a){
+    if(a.textContent.indexOf('技术') >= 0 || a.id === '技术'){
+      a.style.color = '#C8A84B';
+      a.style.borderBottom = '2px solid #C8A84B';
+    }
+  });
+  if('技术' === 'gnav-home'){
+    var logo = document.getElementById('gnav-home');
+    if(logo) logo.style.opacity = '1';
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>乒乓之家 · 赛事系统</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>html{scroll-padding-top:96px}
+:root{
+  --jin:#C8A84B;--jin-l:rgba(200,168,75,.12);--jin-d:#7A601A;
+  --mu:#4A7C59;--huo:#C0392B;--shui:#2A6EAA;--tu:#A0522D;
+  --bg:#0C0C0E;--bg2:#131316;--bg3:#1A1A20;--bg4:#222228;
+  --text:#EDE8DF;--text2:#A8A49C;--text3:#6B6860;
+  --bd:rgba(255,255,255,.07);--r:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse 60% 35% at 70% 0%,rgba(192,57,43,.05) 0%,transparent 60%),
+  radial-gradient(ellipse 50% 40% at 20% 100%,rgba(42,110,170,.06) 0%,transparent 60%);
+  pointer-events:none;z-index:0;}
+
+/* NAV */
+nav{display:flex;align-items:center;justify-content:space-between;padding:16px 36px;border-bottom:1px solid var(--bd);position:relative;z-index:20;background:rgba(12,12,14,.85);backdrop-filter:blur(12px);}
+.logo{font-family:'Noto Serif SC',serif;font-size:19px;font-weight:700;letter-spacing:.05em;background:linear-gradient(135deg,var(--jin) 0%,#E8C878 50%,var(--jin) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.nav-tabs{display:flex;gap:2px;}
+.nav-tab{padding:6px 16px;border-radius:18px;font-size:13px;color:var(--text2);cursor:pointer;border:1px solid transparent;transition:all .2s;}
+.nav-tab:hover{color:var(--text);}
+.nav-tab.active{background:var(--bg3);color:var(--text);border-color:var(--bd);}
+.nav-btn{padding:7px 18px;background:var(--jin-l);border:1px solid rgba(200,168,75,.3);border-radius:18px;color:var(--jin);font-size:13px;cursor:pointer;font-family:inherit;transition:all .2s;}
+.nav-btn:hover{background:rgba(200,168,75,.2);}
+
+main{position:relative;z-index:1;}
+
+/* ── TABS ── */
+.tab-panel{display:none;} .tab-panel.active{display:block;}
+
+/* ══ TAB 0: BROWSE ══ */
+.browse-hero{padding:44px 36px 36px;border-bottom:1px solid var(--bd);}
+.bh-top{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:24px;}
+.tag{font-size:10px;letter-spacing:.22em;color:var(--jin);margin-bottom:10px;}
+.bh-top h1{font-family:'Noto Serif SC',serif;font-size:34px;font-weight:600;line-height:1.2;}
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;}
+.filter-btn{padding:6px 16px;border-radius:20px;font-size:12px;border:1px solid var(--bd);color:var(--text2);cursor:pointer;background:var(--bg2);transition:all .2s;}
+.filter-btn:hover,.filter-btn.active{border-color:var(--jin);color:var(--jin);background:var(--jin-l);}
+
+.t-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:28px 36px;}
+
+.t-card{background:var(--bg2);border:1px solid var(--bd);border-radius:16px;overflow:hidden;cursor:pointer;transition:all .25s;position:relative;}
+.t-card:hover{transform:translateY(-4px);border-color:rgba(255,255,255,.14);}
+.t-card-top{padding:20px 20px 16px;position:relative;}
+.t-status{
+  position:absolute;top:16px;right:16px;
+  font-size:10px;letter-spacing:.1em;padding:3px 10px;border-radius:10px;font-weight:500;
+}
+.st-open{background:rgba(74,124,89,.2);color:#6DC48A;border:1px solid rgba(74,124,89,.3);}
+.st-soon{background:rgba(200,168,75,.15);color:var(--jin);border:1px solid rgba(200,168,75,.3);}
+.st-live{background:rgba(192,57,43,.2);color:#E86060;border:1px solid rgba(192,57,43,.3);animation:pulse 1.5s infinite;}
+.st-end{background:var(--bg4);color:var(--text3);border:1px solid var(--bd);}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.t-type-badge{display:inline-block;padding:3px 10px;border-radius:8px;font-size:11px;margin-bottom:10px;}
+.t-name{font-family:'Noto Serif SC',serif;font-size:17px;font-weight:600;margin-bottom:6px;line-height:1.4;}
+.t-meta{font-size:12px;color:var(--text2);line-height:1.8;}
+.t-card-bot{
+  padding:14px 20px;border-top:1px solid var(--bd);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.t-stats{display:flex;gap:16px;}
+.t-stat{text-align:center;}
+.t-stat-n{font-family:'DM Mono',monospace;font-size:16px;font-weight:500;}
+.t-stat-l{font-size:10px;color:var(--text3);margin-top:1px;}
+.btn-join{padding:7px 18px;border-radius:20px;font-size:12px;font-weight:500;border:none;cursor:pointer;font-family:inherit;transition:all .2s;}
+.btn-join-open{background:linear-gradient(135deg,var(--jin-d),var(--jin));color:#1A1200;}
+.btn-join-open:hover{opacity:.85;}
+.btn-join-dis{background:var(--bg4);color:var(--text3);cursor:default;}
+
+/* ══ TAB 1: BRACKET ══ */
+.bracket-hero{padding:32px 36px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;}
+.bracket-info h2{font-family:'Noto Serif SC',serif;font-size:26px;margin-bottom:6px;}
+.bracket-info p{font-size:13px;color:var(--text2);}
+.bracket-meta{display:flex;gap:20px;margin-top:12px;}
+.bm-item{font-size:12px;color:var(--text3);display:flex;align-items:center;gap:6px;}
+.bm-item span{color:var(--text2);}
+.bracket-actions{display:flex;gap:10px;}
+.btn-sm{padding:8px 20px;border-radius:20px;font-size:13px;border:1px solid var(--bd);color:var(--text2);cursor:pointer;background:var(--bg2);transition:all .2s;font-family:inherit;}
+.btn-sm:hover{border-color:var(--text3);color:var(--text);}
+.btn-sm-gold{background:var(--jin-l);border-color:rgba(200,168,75,.4);color:var(--jin);}
+.btn-sm-gold:hover{background:rgba(200,168,75,.2);}
+
+.bracket-wrap{padding:32px 36px;overflow-x:auto;}
+.bracket{display:flex;gap:0;align-items:stretch;}
+.b-round{display:flex;flex-direction:column;flex-shrink:0;}
+.b-round-title{font-size:11px;letter-spacing:.15em;color:var(--text3);padding:0 20px 16px;text-align:center;}
+.b-slots{display:flex;flex-direction:column;justify-content:space-around;flex:1;padding:0 8px;}
+.b-match{
+  display:flex;flex-direction:column;
+  background:var(--bg2);border:1px solid var(--bd);border-radius:10px;
+  width:160px;margin:6px 0;overflow:hidden;
+  transition:border-color .2s;cursor:pointer;
+}
+.b-match:hover{border-color:rgba(255,255,255,.15);}
+.b-match.current{border-color:rgba(192,57,43,.5);}
+.b-player{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 10px;border-bottom:1px solid var(--bd);font-size:12px;
+  transition:background .2s;
+}
+.b-player:last-child{border-bottom:none;}
+.b-player.winner{background:rgba(200,168,75,.08);}
+.b-player.winner .b-pname{color:var(--jin);}
+.b-seed{width:16px;height:16px;border-radius:4px;background:var(--bg4);font-size:9px;color:var(--text3);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;flex-shrink:0;}
+.b-pname{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.b-plv{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;}
+.b-score{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;min-width:16px;text-align:right;}
+.b-connector{width:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.b-conn-line{width:1px;flex:1;background:var(--bd);}
+.b-conn-h{height:1px;width:100%;background:var(--bd);}
+.champion-box{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  width:180px;margin:6px 0 6px 8px;
+  background:linear-gradient(135deg,rgba(200,168,75,.1),rgba(200,168,75,.04));
+  border:1px solid rgba(200,168,75,.3);border-radius:12px;padding:20px 16px;text-align:center;
+}
+.champion-box .c-crown{font-size:28px;margin-bottom:8px;}
+.champion-box .c-name{font-family:'Noto Serif SC',serif;font-size:15px;color:var(--jin);}
+.champion-box .c-sub{font-size:11px;color:var(--text3);margin-top:4px;}
+
+/* ══ TAB 2: CREATE ══ */
+.create-wrap{max-width:760px;margin:0 auto;padding:36px;}
+.create-wrap h2{font-family:'Noto Serif SC',serif;font-size:26px;margin-bottom:6px;}
+.create-wrap>.sub{font-size:14px;color:var(--text2);margin-bottom:32px;}
+.form-section{margin-bottom:28px;}
+.fs-title{font-size:12px;letter-spacing:.1em;color:var(--text3);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--bd);}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.fg{display:flex;flex-direction:column;gap:6px;}
+.fg label{font-size:12px;color:var(--text2);}
+.fg input,.fg select,.fg textarea{
+  padding:10px 14px;background:var(--bg3);border:1px solid var(--bd);
+  border-radius:10px;color:var(--text);font-size:14px;font-family:inherit;
+  outline:none;transition:border-color .2s;
+}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--jin);}
+.fg textarea{resize:vertical;min-height:80px;}
+.fg select option{background:var(--bg3);}
+.format-opts{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.format-opt{
+  padding:14px 10px;background:var(--bg3);border:1.5px solid var(--bd);
+  border-radius:10px;text-align:center;cursor:pointer;transition:all .2s;
+}
+.format-opt:hover{border-color:var(--text3);}
+.format-opt.sel{border-color:var(--jin);background:var(--jin-l);}
+.fo-icon{font-size:22px;margin-bottom:6px;}
+.fo-name{font-size:12px;font-weight:500;}
+.fo-desc{font-size:10px;color:var(--text3);margin-top:3px;}
+.level-range{display:flex;align-items:center;gap:10px;}
+.level-range input{flex:1;}
+.level-range span{font-size:13px;color:var(--text3);}
+.btn-create{
+  width:100%;padding:14px;
+  background:linear-gradient(135deg,var(--jin-d),var(--jin));
+  border:none;border-radius:var(--r);color:#1A1200;
+  font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;
+  letter-spacing:.05em;transition:opacity .2s;margin-top:8px;
+}
+.btn-create:hover{opacity:.88;}
+
+/* ══ TAB 3: RESULTS ══ */
+.results-wrap{padding:28px 36px;}
+.results-wrap h2{font-family:'Noto Serif SC',serif;font-size:24px;margin-bottom:20px;}
+.result-table{width:100%;border-collapse:collapse;}
+.result-table th{font-size:11px;letter-spacing:.1em;color:var(--text3);padding:8px 14px;text-align:left;border-bottom:1px solid var(--bd);}
+.result-table td{padding:12px 14px;border-bottom:1px solid var(--bd);font-size:13px;vertical-align:middle;}
+.result-table tr:last-child td{border-bottom:none;}
+.result-table tbody tr{transition:background .15s;cursor:pointer;}
+.result-table tbody tr:hover{background:var(--bg2);}
+.rank-badge{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;font-family:'DM Mono',monospace;}
+.rank-1{background:rgba(200,168,75,.2);color:var(--jin);}
+.rank-2{background:rgba(154,170,187,.2);color:#9AAABB;}
+.rank-3{background:rgba(200,120,75,.2);color:#C8784B;}
+.rank-n{background:var(--bg4);color:var(--text3);}
+.player-cell{display:flex;align-items:center;gap:10px;}
+.p-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;}
+.p-name{font-weight:500;}
+.p-meta{font-size:11px;color:var(--text3);}
+.wl{font-family:'DM Mono',monospace;}
+.w{color:#6DC48A;} .l{color:#E86060;}
+.pts-change{font-family:'DM Mono',monospace;font-size:13px;}
+.pts-up{color:#6DC48A;} .pts-dn{color:#E86060;} .pts-eq{color:var(--text3);}
+.element-tag{padding:3px 10px;border-radius:10px;font-size:11px;}
+
+/* NOTIF */
+.notif{position:fixed;top:72px;right:28px;background:var(--bg3);border:1px solid rgba(200,168,75,.4);border-radius:14px;padding:12px 18px;display:flex;align-items:center;gap:10px;font-size:13px;transform:translateX(140%);transition:transform .4s cubic-bezier(.34,1.56,.64,1);z-index:200;}
+.notif.show{transform:none;}
+</style>
+  <script src="supabase.js"></script>
+
+<script>
+document.addEventListener('supabase-ready', async () => {
+  try {
+    const realT = await API.getTournaments();
+    if (realT && realT.length > 0) {
+      // 转换为现有渲染格式
+      const fmt = realT.map(t => ({
+        id:     t.id,
+        _realId: t.id,
+        name:   t.name,
+        type:   {single_elim:'单败淘汰',double_elim:'双败淘汰',
+                 round_robin:'单循环',group_knockout:'小组赛＋淘汰'}[t.format] || t.format,
+        place:  (t.city||'') + (t.venue ? '·'+t.venue : ''),
+        date:   t.starts_at ? t.starts_at.slice(0,10) : '待定',
+        lv:     t.level_min && t.level_max
+                  ? `${t.level_min}–${t.level_max}级`
+                  : (t.level_min ? `${t.level_min}级以上` : '不限'),
+        max:    t.max_players || 32,
+        cur:    t.registrations?.[0]?.count || 0,
+        prize:  t.prize || '积分',
+        status: t.status === 'open' ? 'open'
+              : t.status === 'in_progress' ? 'live'
+              : t.status === 'finished' ? 'end' : 'soon',
+      }));
+      // 合并：真实赛事放前面，演示数据作补充
+      tournaments.unshift(...fmt);
+      renderTournaments('all');
+    }
+  } catch(e) {
+    console.warn('加载赛事失败，使用演示数据:', e.message);
+  }
+});
+</script>
+
+</head>
+<body>
+<!-- GLOBAL NAV --><div id="g-nav" style="position:fixed;top:0;left:0;right:0;z-index:9999;background:rgba(8,8,8,0.96);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;height:48px;padding:0 24px;gap:0;font-family:Noto Sans SC,sans-serif"><a href="pingpong_home.html" id="gnav-home" style="font-family:Noto Serif SC,serif;font-size:17px;font-weight:700;letter-spacing:.05em;background:linear-gradient(135deg,#C8A84B,#E8C878,#C8A84B);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none;padding-right:20px;border-right:1px solid rgba(255,255,255,0.08);margin-right:4px;white-space:nowrap">乒乓之家</a><a href="pingpong_register.html" class="gn" style="padding:0 14px;font-size:12px;color:rgba(200,200,200,0.6);text-decoration:none;height:48px;display:flex;align-items:center;transition:color .2s;white-space:nowrap">注册/登录</a><a href="pingpong_level.html" class="gn" style="padding:0 14px;font-size:12px;color:rgba(200,200,200,0.6);text-decoration:none;height:48px;display:flex;align-items:center;transition:color .2s;white-space:nowrap">等级系统</a><a href="pingpong_tournament.html" class="gn" style="padding:0 14px;font-size:12px;color:rgba(200,200,200,0.6);text-decoration:none;height:48px;display:flex;align-items:center;transition:color .2s;white-space:nowrap">赛事大厅</a><a href="pingpong_community.html" class="gn" style="padding:0 14px;font-size:12px;color:rgba(200,200,200,0.6);text-decoration:none;height:48px;display:flex;align-items:center;transition:color .2s;white-space:nowrap">社区</a><a href="pingpong_tech.html" class="gn" style="padding:0 14px;font-size:12px;color:rgba(200,200,200,0.6);text-decoration:none;height:48px;display:flex;align-items:center;transition:color .2s;white-space:nowrap">技术架构</a><div style="flex:1"></div><a href="pingpong_register.html" style="padding:7px 18px;background:linear-gradient(135deg,#7A601A,#C8A84B);border-radius:20px;font-size:12px;font-weight:600;color:#1A1000;text-decoration:none;white-space:nowrap">免费注册</a></div><style>#g-nav .gn:hover{color:#C8A84B!important}body{padding-top:48px!important}</style>
+
+<nav>
+  <div class="logo">乒乓之家</div>
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="showTab(0)">赛事大厅</div>
+    <div class="nav-tab" onclick="showTab(1)">对阵表</div>
+    <div class="nav-tab" onclick="showTab(2)">发布赛事</div>
+    <div class="nav-tab" onclick="showTab(3)">成绩榜</div>
+  </div>
+  <button class="nav-btn" onclick="showTab(2)">＋ 创办赛事</button>
+</nav>
+
+<main>
+
+<!-- ══════ TAB 0: 赛事大厅 ══════ -->
+<div class="tab-panel active" id="tab0">
+  <div class="browse-hero">
+    <div class="bh-top">
+      <div>
+        <div class="tag">TOURNAMENT HALL · 赛事大厅</div>
+        <h1>找到你的战场</h1>
+      </div>
+      <div class="filter-row" id="filters">
+        <div class="filter-btn active" onclick="filterT(this,'all')">全部</div>
+        <div class="filter-btn" onclick="filterT(this,'open')">报名中</div>
+        <div class="filter-btn" onclick="filterT(this,'live')">进行中</div>
+        <div class="filter-btn" onclick="filterT(this,'soon')">即将开始</div>
+        <div class="filter-btn" onclick="filterT(this,'end')">已结束</div>
+      </div>
+    </div>
+  </div>
+  <div class="t-grid" id="t-grid"></div>
+</div>
+
+<!-- ══════ TAB 1: 对阵表 ══════ -->
+<div class="tab-panel" id="tab1">
+  <div class="bracket-hero">
+    <div class="bracket-info">
+      <h2>🏆 2025春季城市公开赛</h2>
+      <p>单败淘汰制 · 16人参赛 · 已进行至半决赛</p>
+      <div class="bracket-meta">
+        <div class="bm-item">📅 <span>2025年3月15日</span></div>
+        <div class="bm-item">📍 <span>北京·朝阳体育馆</span></div>
+        <div class="bm-item">⚡ <span>等级40–70级</span></div>
+        <div class="bm-item">👥 <span>16/16人</span></div>
+      </div>
+    </div>
+    <div class="bracket-actions">
+      <button class="btn-sm" onclick="showNotif('📋','对阵表已复制到剪贴板')">分享对阵表</button>
+      <button class="btn-sm btn-sm-gold" onclick="showNotif('📝','已记录本场比赛结果')">录入成绩</button>
+    </div>
+  </div>
+  <div class="bracket-wrap">
+    <div class="bracket" id="bracket-svg"></div>
+  </div>
+</div>
+
+<!-- ══════ TAB 2: 发布赛事 ══════ -->
+<div class="tab-panel" id="tab2">
+<div class="create-wrap">
+  <div class="tag">CREATE TOURNAMENT</div>
+  <h2>创办新赛事</h2>
+  <div class="sub">填写赛事信息后，审核通过即可在大厅展示并接受报名。</div>
+
+  <div class="form-section">
+    <div class="fs-title">基本信息</div>
+    <div class="form-grid">
+      <div class="fg" style="grid-column:span 2">
+        <label>赛事名称</label>
+        <input type="text" placeholder="例：2025 春季北京乒乓联赛">
+      </div>
+      <div class="fg">
+        <label>举办城市</label>
+        <input type="text" placeholder="北京">
+      </div>
+      <div class="fg">
+        <label>场馆 / 地点</label>
+        <input type="text" placeholder="朝阳体育馆 3号厅">
+      </div>
+      <div class="fg">
+        <label>比赛日期</label>
+        <input type="date">
+      </div>
+      <div class="fg">
+        <label>报名截止</label>
+        <input type="date">
+      </div>
+      <div class="fg" style="grid-column:span 2">
+        <label>赛事简介</label>
+        <textarea placeholder="比赛规则、奖励说明、注意事项…"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="fs-title">赛制选择</div>
+    <div class="format-opts" id="format-opts">
+      <div class="format-opt sel" onclick="selFormat(this)">
+        <div class="fo-icon">⚡</div>
+        <div class="fo-name">单败淘汰</div>
+        <div class="fo-desc">输一场即淘汰，刺激</div>
+      </div>
+      <div class="format-opt" onclick="selFormat(this)">
+        <div class="fo-icon">🛡️</div>
+        <div class="fo-name">双败淘汰</div>
+        <div class="fo-desc">输两场才淘汰</div>
+      </div>
+      <div class="format-opt" onclick="selFormat(this)">
+        <div class="fo-icon">🔄</div>
+        <div class="fo-name">单循环赛</div>
+        <div class="fo-desc">所有人互打一场</div>
+      </div>
+      <div class="format-opt" onclick="selFormat(this)">
+        <div class="fo-icon">🏅</div>
+        <div class="fo-name">小组赛＋淘汰</div>
+        <div class="fo-desc">分组循环后淘汰</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="fs-title">参赛限制</div>
+    <div class="form-grid">
+      <div class="fg">
+        <label>最大参赛人数</label>
+        <select>
+          <option>8人</option><option>16人</option><option selected>32人</option><option>64人</option><option>不限</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>报名费</label>
+        <input type="text" placeholder="¥ 0（免费）">
+      </div>
+      <div class="fg" style="grid-column:span 2">
+        <label>等级限制（仅限该区间的选手报名）</label>
+        <div class="level-range">
+          <input type="range" min="1" max="100" value="20" oninput="updateLvRange('min',this.value)">
+          <span id="lv-min">20</span> 级 —
+          <span id="lv-max">80</span> 级
+          <input type="range" min="1" max="100" value="80" oninput="updateLvRange('max',this.value)">
+        </div>
+      </div>
+      <div class="fg">
+        <label>开放五行风格</label>
+        <select>
+          <option>全部风格均可</option>
+          <option>仅火型·攻势流</option>
+          <option>仅水型·变化流</option>
+          <option>仅金型·精准流</option>
+          <option>仅木型·防守流</option>
+          <option>仅土型·稳固流</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>积分赛事（影响等级）</label>
+        <select>
+          <option>是，计入开球网积分</option>
+          <option>否，仅站内积分</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-create" onclick="showNotif('🎉','赛事提交成功，审核通常在24小时内完成！')">提交赛事 →</button>
+</div>
+</div>
+
+<!-- ══════ TAB 3: 成绩榜 ══════ -->
+<div class="tab-panel" id="tab3">
+<div class="results-wrap">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+    <div>
+      <div class="tag">RESULTS · 成绩</div>
+      <h2>2025春季城市公开赛 · 最终排名</h2>
+    </div>
+    <button class="btn-sm btn-sm-gold" onclick="showNotif('📊','成绩已导出为CSV')">导出成绩</button>
+  </div>
+  <table class="result-table" id="result-table">
+    <thead>
+      <tr>
+        <th>排名</th><th>选手</th><th>风格</th><th>胜/负</th><th>积分</th><th>等级变化</th>
+      </tr>
+    </thead>
+    <tbody id="result-tbody"></tbody>
+  </table>
+</div>
+</div>
+
+</main>
+
+<!-- NOTIF -->
+<div class="notif" id="notif">
+  <span id="notif-icon">🎉</span>
+  <span id="notif-msg"></span>
+</div>
+
+<script>
+/* ── DATA ── */
+const elements={huo:{name:"火型",color:"#C0392B",bg:"rgba(192,57,43,.15)"},mu:{name:"木型",color:"#4A7C59",bg:"rgba(74,124,89,.15)"},shui:{name:"水型",color:"#2A6EAA",bg:"rgba(42,110,170,.15)"},jin:{name:"金型",color:"#C8A84B",bg:"rgba(200,168,75,.15)"},tu:{name:"土型",color:"#A0522D",bg:"rgba(160,82,45,.15)"}};
+const elArr=["huo","mu","shui","jin","tu"];
+const tournaments=[
+  {id:0,name:"2025春季城市公开赛",type:"单败淘汰",place:"北京·朝阳体育馆",date:"2025-03-15",lv:"40–70级",max:16,cur:16,prize:"¥2,000",status:"live"},
+  {id:1,name:"五行争霸·水型专属赛",type:"单循环赛",place:"上海·徐汇乒乓俱乐部",date:"2025-03-22",lv:"30–60级",max:12,cur:7,prize:"¥800",status:"open"},
+  {id:2,name:"周末友谊联赛 第12期",type:"小组赛＋淘汰",place:"广州·天河全民体育馆",date:"2025-03-29",lv:"不限",max:32,cur:19,prize:"奖杯＋积分",status:"open"},
+  {id:3,name:"宗师擂台·80级以上挑战赛",type:"双败淘汰",place:"深圳·福田体育公园",date:"2025-04-05",lv:"80–100级",max:8,cur:0,prize:"¥5,000",status:"soon"},
+  {id:4,name:"2025年1月月赛",type:"单循环赛",place:"北京·西城乒乓馆",date:"2025-01-18",lv:"全年龄",max:24,cur:24,prize:"积分",status:"end"},
+  {id:5,name:"火型攻势流特训赛",type:"小组赛＋淘汰",place:"成都·武侯体育中心",date:"2025-04-12",lv:"20–50级",max:16,cur:3,prize:"¥600",status:"open"},
+];
+const statusLabel={open:"报名中",live:"进行中",soon:"即将开始",end:"已结束"};
+const statusClass={open:"st-open",live:"st-live",soon:"st-soon",end:"st-end"};
+const typeColor={"单败淘汰":"var(--huo)","单循环赛":"var(--shui)","小组赛＋淘汰":"var(--jin)","双败淘汰":"var(--mu)"};
+const typeBg={"单败淘汰":"rgba(192,57,43,.12)","单循环赛":"rgba(42,110,170,.12)","小组赛＋淘汰":"rgba(200,168,75,.12)","双败淘汰":"rgba(74,124,89,.12)"};
+
+/* ── RENDER TOURNAMENTS ── */
+let curFilter='all';
+function renderTournaments(filter){
+  curFilter=filter;
+  const grid=document.getElementById('t-grid');
+  const list=filter==='all'?tournaments:tournaments.filter(t=>t.status===filter);
+  grid.innerHTML=list.map(t=>`
+    <div class="t-card" onclick="openTournament(${t.id})">
+      <div class="t-card-top">
+        <div class="t-status ${statusClass[t.status]}">${statusLabel[t.status]}</div>
+        <div class="t-type-badge" style="background:${typeBg[t.type]};color:${typeColor[t.type]}">${t.type}</div>
+        <div class="t-name">${t.name}</div>
+        <div class="t-meta">
+          📅 ${t.date}<br>
+          📍 ${t.place}<br>
+          ⚡ ${t.lv} &nbsp;·&nbsp; 🏆 ${t.prize}
+        </div>
+      </div>
+      <div class="t-card-bot">
+        <div class="t-stats">
+          <div class="t-stat"><div class="t-stat-n" style="color:${t.cur>=t.max?'#E86060':'#6DC48A'}">${t.cur}/${t.max}</div><div class="t-stat-l">人数</div></div>
+        </div>
+        <button class="btn-join ${t.status==='open'?'btn-join-open':'btn-join-dis'}"
+          onclick="event.stopPropagation();joinT(${t.id})"
+        >${t.status==='open'?'立即报名':t.status==='live'?'观看':'查看'}</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterT(el,f){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderTournaments(f);
+}
+function openTournament(id){ showTab(1); }
+async function joinT(id){
+  const t = tournaments[id] || tournaments.find(x=>x.id===id);
+  if (!t || t.status !== 'open') return;
+  if (!Auth.requireAuth()) return;
+
+  const btn = event?.target;
+  if (btn) { btn.textContent='报名中…'; btn.disabled=true; }
+
+  try {
+    if (t._realId) {
+      await API.registerTournament(t._realId);
+    }
+    t.cur = (t.cur || 0) + 1;
+    showNotif('✅', `已报名「${t.name}」！截止前可在个人中心取消。`);
+    renderTournaments(curFilter || 'all');
+  } catch(err) {
+    showNotif('❌', window.handleError ? window.handleError(err) : '报名失败');
+    if (btn) { btn.textContent='立即报名'; btn.disabled=false; }
+  }
+}
+
+/* ── BRACKET ── */
+const players=[
+  {n:"张明远",lv:62,el:"huo"},{n:"李思雨",lv:58,el:"shui"},
+  {n:"王浩然",lv:71,el:"jin"},{n:"陈晓月",lv:55,el:"mu"},
+  {n:"刘峰",lv:68,el:"huo"},{n:"赵静",lv:60,el:"tu"},
+  {n:"孙大鹏",lv:74,el:"shui"},{n:"周慧",lv:53,el:"jin"},
+];
+const r16=[
+  [[0,1],[2,3]],[[4,5],[6,7]],[[0,null],[2,null]],[[4,null],[6,null]],
+];
+const matchData=[
+  {p:[0,1],scores:[[3,1]],winner:0},
+  {p:[2,3],scores:[[3,0]],winner:0},
+  {p:[4,5],scores:[[3,2]],winner:0},
+  {p:[6,7],scores:[[3,1]],winner:0},
+  {p:[0,2],scores:[[null,null]],winner:null,current:true},
+  {p:[4,6],scores:[[null,null]],winner:null},
+];
+function buildBracket(){
+  const wrap=document.getElementById('bracket-svg');
+  const rounds=[
+    {title:"八强 R1",matches:[matchData[0],matchData[1],matchData[2],matchData[3]]},
+    {title:"半决赛",matches:[matchData[4],matchData[5]]},
+    {title:"决赛",matches:[]},
+  ];
+  // R1
+  let html='';
+  const renderMatch=(m,isCurrent)=>{
+    const p0=players[m.p[0]], p1=players[m.p[1]];
+    const w=m.winner;
+    const s=m.scores[0];
+    return `<div class="b-match${isCurrent?' current':''}">
+      <div class="b-player${w===0?' winner':''}">
+        <div class="b-seed">${m.p[0]+1}</div>
+        <div class="b-pname">${p0.n}</div>
+        <div class="b-plv">Lv${p0.lv}</div>
+        <div class="b-score" style="color:${w===0?'var(--jin)':'var(--text3)'}">${s[0]??'-'}</div>
+      </div>
+      <div class="b-player${w===1?' winner':''}">
+        <div class="b-seed">${m.p[1]+1}</div>
+        <div class="b-pname">${p1.n}</div>
+        <div class="b-plv">Lv${p1.lv}</div>
+        <div class="b-score" style="color:${w===1?'var(--jin)':'var(--text3)'}">${s[1]??'-'}</div>
+      </div>
+    </div>`;
+  };
+  // Round 1
+  html+=`<div class="b-round">
+    <div class="b-round-title">八强</div>
+    <div class="b-slots">
+      ${matchData.slice(0,4).map(m=>renderMatch(m,false)).join('<div style="height:20px"></div>')}
+    </div>
+  </div>`;
+  // Connector
+  html+=`<div class="b-connector" style="padding-top:28px">
+    <svg width="20" height="360" style="overflow:visible">
+      <path d="M0,45 H10 V135 H0" fill="none" stroke="var(--bd)" stroke-width="1"/>
+      <path d="M10,90 H20" fill="none" stroke="var(--bd)" stroke-width="1"/>
+      <path d="M0,225 H10 V315 H0" fill="none" stroke="var(--bd)" stroke-width="1"/>
+      <path d="M10,270 H20" fill="none" stroke="var(--bd)" stroke-width="1"/>
+    </svg>
+  </div>`;
+  // Round 2
+  html+=`<div class="b-round">
+    <div class="b-round-title">半决赛</div>
+    <div class="b-slots" style="justify-content:space-around;padding-top:50px;padding-bottom:50px">
+      ${matchData.slice(4,6).map(m=>renderMatch(m,m.current)).join('<div style="height:60px"></div>')}
+    </div>
+  </div>`;
+  // Connector 2
+  html+=`<div class="b-connector" style="padding-top:28px">
+    <svg width="20" height="360" style="overflow:visible">
+      <path d="M0,125 H10 V235 H0" fill="none" stroke="var(--bd)" stroke-width="1"/>
+      <path d="M10,180 H20" fill="none" stroke="var(--bd)" stroke-width="1"/>
+    </svg>
+  </div>`;
+  // Final + Champion
+  html+=`<div class="b-round">
+    <div class="b-round-title">决赛</div>
+    <div class="b-slots" style="justify-content:center;padding-top:28px">
+      <div class="b-match" style="opacity:.5">
+        <div class="b-player"><div class="b-seed">?</div><div class="b-pname">待定</div><div class="b-score">-</div></div>
+        <div class="b-player"><div class="b-seed">?</div><div class="b-pname">待定</div><div class="b-score">-</div></div>
+      </div>
+    </div>
+  </div>`;
+  // Champion box
+  html+=`<div class="b-connector" style="padding-top:28px">
+    <svg width="20" height="360" style="overflow:visible">
+      <path d="M0,180 H20" fill="none" stroke="rgba(200,168,75,.3)" stroke-width="1" stroke-dasharray="4 3"/>
+    </svg>
+  </div>
+  <div style="display:flex;flex-direction:column;justify-content:center;padding-top:28px">
+    <div class="champion-box">
+      <div class="c-crown">🏆</div>
+      <div class="c-name">冠军待定</div>
+      <div class="c-sub">决赛后公布</div>
+    </div>
+  </div>`;
+  wrap.innerHTML=html;
+}
+
+/* ── RESULTS TABLE ── */
+const resultData=[
+  {name:"王浩然",lv:71,el:"jin",w:4,l:0,pts:2000,change:+18},
+  {name:"张明远",lv:62,el:"huo",w:3,l:1,pts:1820,change:+12},
+  {name:"孙大鹏",lv:74,el:"shui",w:3,l:1,pts:1860,change:+10},
+  {name:"刘峰",lv:68,el:"huo",w:2,l:1,pts:1750,change:+6},
+  {name:"李思雨",lv:58,el:"shui",w:2,l:1,pts:1580,change:+4},
+  {name:"陈晓月",lv:55,el:"mu",w:1,l:1,pts:1550,change:-2},
+  {name:"赵静",lv:60,el:"tu",w:1,l:1,pts:1600,change:-4},
+  {name:"周慧",lv:53,el:"jin",w:0,l:1,pts:1530,change:-6},
+];
+const avatarColors=["#C0392B","#2A6EAA","#C8A84B","#4A7C59","#A0522D","#6B3FA0","#2A8A6A","#8A2A6A"];
+function buildResults(){
+  const body=document.getElementById('result-tbody');
+  body.innerHTML=resultData.map((p,i)=>{
+    const el=elements[p.el];
+    const chg=p.change;
+    return `<tr onclick="showNotif('📊','${p.name} · Lv${p.lv} · ${el.name}')">
+      <td><div class="rank-badge ${i<3?'rank-'+(i+1):'rank-n'}">${i+1}</div></td>
+      <td><div class="player-cell">
+        <div class="p-avatar" style="background:${avatarColors[i]}22;color:${avatarColors[i]};border:1px solid ${avatarColors[i]}44">${p.name[0]}</div>
+        <div><div class="p-name">${p.name}</div><div class="p-meta">Lv${p.lv} · ${p.pts}分</div></div>
+      </div></td>
+      <td><span class="element-tag" style="background:${el.bg};color:${el.color}">${el.name}</span></td>
+      <td class="wl"><span class="w">${p.w}胜</span> / <span class="l">${p.l}负</span></td>
+      <td style="font-family:'DM Mono',monospace">${p.pts}</td>
+      <td class="pts-change ${chg>0?'pts-up':chg<0?'pts-dn':'pts-eq'}">${chg>0?'↑+'+chg:chg<0?'↓'+chg:'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── HELPERS ── */
+function selFormat(el){document.querySelectorAll('.format-opt').forEach(e=>e.classList.remove('sel'));el.classList.add('sel');}
+function updateLvRange(side,val){document.getElementById('lv-'+side).textContent=val;}
+function showTab(i){
+  document.querySelectorAll('.tab-panel').forEach((p,j)=>{p.classList.toggle('active',j===i);});
+  document.querySelectorAll('.nav-tab').forEach((t,j)=>{t.classList.toggle('active',j===i);});
+}
+function showNotif(icon,msg){
+  const n=document.getElementById('notif');
+  document.getElementById('notif-icon').textContent=icon;
+  document.getElementById('notif-msg').textContent=msg;
+  n.classList.add('show');
+  setTimeout(()=>n.classList.remove('show'),3000);
+}
+
+/* ── INIT ── */
+renderTournaments('all');
+buildBracket();
+buildResults();
+</script>
+
+<script>
+(function(){
+  var links = document.querySelectorAll('#g-nav .gn');
+  links.forEach(function(a){
+    if(a.textContent.indexOf('赛事') >= 0 || a.id === '赛事'){
+      a.style.color = '#C8A84B';
+      a.style.borderBottom = '2px solid #C8A84B';
+    }
+  });
+  if('赛事' === 'gnav-home'){
+    var logo = document.getElementById('gnav-home');
+    if(logo) logo.style.opacity = '1';
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>乒乓之家 · 社区</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>html{scroll-padding-top:96px}
+:root{
+  --jin:#C8A84B;--jin-l:rgba(200,168,75,.11);--jin-d:#7A601A;
+  --mu:#4A7C59;--mu-l:rgba(74,124,89,.13);
+  --shui:#2A6EAA;--shui-l:rgba(42,110,170,.13);
+  --huo:#C0392B;--huo-l:rgba(192,57,43,.13);
+  --tu:#A0522D;--tu-l:rgba(160,82,45,.13);
+  --pur:#6B3FA0;--pur-l:rgba(107,63,160,.13);
+  --bg:#0C0C0F;--bg2:#13131A;--bg3:#1A1A24;--bg4:#22222E;
+  --text:#EDE8DF;--text2:#A8A49C;--text3:#6B6860;
+  --bd:rgba(255,255,255,.07);--r:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;}
+body::before{content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse 55% 30% at 80% 10%,rgba(107,63,160,.05) 0%,transparent 60%),
+  radial-gradient(ellipse 45% 40% at 10% 90%,rgba(42,110,170,.06) 0%,transparent 60%);
+  pointer-events:none;z-index:0;}
+
+/* ── NAV ── */
+nav{display:flex;align-items:center;gap:0;border-bottom:1px solid var(--bd);position:sticky;top:48px;z-index:50;background:rgba(12,12,15,.9);backdrop-filter:blur(14px);}
+.logo{font-family:'Noto Serif SC',serif;font-size:18px;font-weight:700;letter-spacing:.05em;background:linear-gradient(135deg,var(--jin) 0%,#E8C878 50%,var(--jin) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;padding:14px 20px 14px 28px;border-right:1px solid var(--bd);white-space:nowrap;}
+.nav-tabs{display:flex;gap:0;flex:1;overflow-x:auto;}
+.nav-tab{padding:14px 18px;font-size:13px;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;}
+.nav-tab:hover{color:var(--text);}
+.nav-tab.active{color:var(--jin);border-bottom-color:var(--jin);}
+.nav-right{display:flex;align-items:center;gap:8px;padding:0 20px;border-left:1px solid var(--bd);}
+.nav-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--jin-d),var(--jin));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#1A1200;cursor:pointer;}
+.nav-notif{width:32px;height:32px;border-radius:50%;background:var(--bg3);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;position:relative;}
+.notif-dot{position:absolute;top:5px;right:5px;width:7px;height:7px;background:var(--huo);border-radius:50%;border:1.5px solid var(--bg);}
+
+/* ── LAYOUT ── */
+.app{display:flex;flex:1;position:relative;z-index:1;overflow:hidden;}
+.sidebar{width:220px;flex-shrink:0;border-right:1px solid var(--bd);padding:20px 14px;display:flex;flex-direction:column;gap:4px;overflow-y:auto;}
+.content{flex:1;overflow-y:auto;}
+.sidebar-section{font-size:10px;letter-spacing:.18em;color:var(--text3);padding:14px 10px 6px;}
+.slink{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;font-size:13px;color:var(--text2);cursor:pointer;transition:all .18s;}
+.slink:hover{background:var(--bg3);color:var(--text);}
+.slink.active{background:var(--jin-l);color:var(--jin);}
+.slink-icon{font-size:15px;width:20px;text-align:center;}
+.slink-badge{margin-left:auto;background:var(--huo);color:#fff;font-size:10px;border-radius:8px;padding:1px 6px;font-family:'DM Mono',monospace;}
+
+/* ── PANELS ── */
+.panel{display:none;} .panel.active{display:flex;flex-direction:column;}
+
+/* ════ PANEL: FEED ════ */
+.feed-layout{display:grid;grid-template-columns:1fr 320px;gap:0;height:100%;}
+.feed-main{padding:24px 28px;border-right:1px solid var(--bd);overflow-y:auto;}
+.feed-aside{padding:20px 18px;overflow-y:auto;}
+
+.compose-box{background:var(--bg2);border:1px solid var(--bd);border-radius:14px;padding:16px 18px;margin-bottom:20px;}
+.compose-top{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px;}
+.my-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--huo),#E86040);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff;flex-shrink:0;}
+.compose-input{flex:1;background:var(--bg3);border:1px solid var(--bd);border-radius:10px;padding:10px 14px;color:var(--text2);font-size:14px;font-family:inherit;resize:none;min-height:70px;outline:none;transition:border-color .2s;}
+.compose-input:focus{border-color:var(--jin);color:var(--text);}
+.compose-bot{display:flex;align-items:center;justify-content:space-between;}
+.compose-tags{display:flex;gap:6px;}
+.tag-btn{padding:5px 12px;border-radius:16px;font-size:12px;border:1px solid var(--bd);color:var(--text3);background:var(--bg3);cursor:pointer;transition:all .2s;}
+.tag-btn:hover,.tag-btn.sel{border-color:var(--jin);color:var(--jin);background:var(--jin-l);}
+.btn-post{padding:7px 20px;background:linear-gradient(135deg,var(--jin-d),var(--jin));border:none;border-radius:18px;color:#1A1200;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;}
+.btn-post:hover{opacity:.88;}
+
+.post-card{background:var(--bg2);border:1px solid var(--bd);border-radius:14px;padding:18px;margin-bottom:14px;transition:border-color .2s;cursor:pointer;}
+.post-card:hover{border-color:rgba(255,255,255,.13);}
+.post-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.post-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;flex-shrink:0;}
+.post-author{flex:1;}
+.post-name{font-size:14px;font-weight:500;}
+.post-meta{font-size:11px;color:var(--text3);margin-top:2px;}
+.el-tag{display:inline-block;padding:2px 9px;border-radius:8px;font-size:11px;margin-left:6px;}
+.lv-tag{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);}
+.post-time{font-size:11px;color:var(--text3);}
+.post-body{font-size:14px;line-height:1.7;color:var(--text);margin-bottom:14px;}
+.post-img{width:100%;border-radius:10px;margin-bottom:14px;background:var(--bg3);height:160px;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:13px;}
+.post-footer{display:flex;gap:20px;}
+.post-action{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text3);cursor:pointer;padding:4px 8px;border-radius:8px;transition:all .18s;}
+.post-action:hover{background:var(--bg3);color:var(--text);}
+.post-action.liked{color:var(--huo);}
+.pa-icon{font-size:15px;}
+
+/* aside widgets */
+.aside-card{background:var(--bg2);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:14px;}
+.aside-title{font-size:12px;letter-spacing:.1em;color:var(--text3);margin-bottom:12px;}
+.hot-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd);cursor:pointer;}
+.hot-item:last-child{border-bottom:none;}
+.hot-rank{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;width:18px;flex-shrink:0;}
+.hot-text{font-size:13px;flex:1;line-height:1.4;}
+.hot-count{font-size:11px;color:var(--text3);}
+.el-filter{display:flex;flex-wrap:wrap;gap:6px;}
+.el-pill{padding:5px 13px;border-radius:16px;font-size:12px;border:1px solid var(--bd);color:var(--text2);cursor:pointer;transition:all .2s;}
+.el-pill:hover,.el-pill.active{border-color:var(--jin);color:var(--jin);}
+.online-row{display:flex;align-items:center;gap:8px;padding:6px 0;}
+.o-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;}
+.o-name{font-size:13px;flex:1;}
+.o-dot{width:7px;height:7px;border-radius:50%;background:#6DC48A;}
+
+/* ════ PANEL: BUDDIES ════ */
+.buddies-wrap{padding:24px 28px;}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.section-head h2{font-family:'Noto Serif SC',serif;font-size:22px;}
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.fbtn{padding:6px 16px;border-radius:20px;font-size:12px;border:1px solid var(--bd);color:var(--text2);cursor:pointer;background:var(--bg2);transition:all .2s;}
+.fbtn:hover,.fbtn.active{border-color:var(--jin);color:var(--jin);}
+.buddies-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.buddy-card{background:var(--bg2);border:1px solid var(--bd);border-radius:14px;padding:20px 16px;text-align:center;transition:all .22s;cursor:pointer;}
+.buddy-card:hover{transform:translateY(-3px);border-color:rgba(255,255,255,.14);}
+.buddy-av{width:56px;height:56px;border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;position:relative;}
+.buddy-online{position:absolute;bottom:2px;right:2px;width:11px;height:11px;background:#6DC48A;border-radius:50%;border:2px solid var(--bg2);}
+.buddy-name{font-size:15px;font-weight:500;margin-bottom:4px;}
+.buddy-tags{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin:8px 0;}
+.buddy-city{font-size:12px;color:var(--text3);margin-bottom:12px;}
+.buddy-stats{display:flex;justify-content:center;gap:16px;margin-bottom:14px;}
+.bs{text-align:center;}
+.bs-n{font-family:'DM Mono',monospace;font-size:16px;font-weight:500;}
+.bs-l{font-size:10px;color:var(--text3);margin-top:2px;}
+.btn-invite{width:100%;padding:8px;border:1px solid var(--bd);border-radius:20px;background:transparent;color:var(--text2);font-size:13px;font-family:inherit;cursor:pointer;transition:all .2s;}
+.btn-invite:hover{border-color:var(--jin);color:var(--jin);}
+.btn-invited{background:var(--jin-l);border-color:rgba(200,168,75,.4);color:var(--jin);}
+
+/* ════ PANEL: EQUIPMENT ════ */
+.equip-wrap{padding:24px 28px;}
+.equip-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px;}
+.equip-card{background:var(--bg2);border:1px solid var(--bd);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .22s;}
+.equip-card:hover{transform:translateY(-3px);border-color:rgba(255,255,255,.14);}
+.equip-img{height:100px;display:flex;align-items:center;justify-content:center;font-size:40px;}
+.equip-body{padding:14px;}
+.equip-brand{font-size:10px;letter-spacing:.12em;color:var(--text3);margin-bottom:4px;}
+.equip-name{font-size:14px;font-weight:500;margin-bottom:6px;line-height:1.4;}
+.equip-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;}
+.eq-tag{padding:2px 8px;border-radius:8px;font-size:10px;}
+.equip-rating{display:flex;align-items:center;gap:4px;margin-bottom:6px;}
+.stars{color:var(--jin);font-size:12px;}
+.equip-price{font-family:'DM Mono',monospace;font-size:14px;color:var(--jin);}
+.equip-el{font-size:11px;color:var(--text3);margin-top:4px;}
+
+/* ════ PANEL: VENUES ════ */
+.venues-wrap{padding:24px 28px;}
+.map-placeholder{height:280px;background:var(--bg2);border:1px solid var(--bd);border-radius:14px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;margin-bottom:20px;color:var(--text2);}
+.venue-list{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.venue-card{background:var(--bg2);border:1px solid var(--bd);border-radius:12px;padding:16px;cursor:pointer;transition:border-color .2s;}
+.venue-card:hover{border-color:rgba(255,255,255,.14);}
+.venue-name{font-size:14px;font-weight:500;margin-bottom:6px;}
+.venue-meta{font-size:12px;color:var(--text2);line-height:1.7;}
+.venue-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;}
+.v-tag{padding:2px 8px;border-radius:8px;font-size:10px;background:var(--bg3);color:var(--text3);border:1px solid var(--bd);}
+.venue-dist{font-family:'DM Mono',monospace;font-size:11px;color:var(--jin);margin-top:6px;}
+
+/* ════ PANEL: DM ════ */
+.dm-layout{display:grid;grid-template-columns:280px 1fr;height:100%;}
+.dm-list{border-right:1px solid var(--bd);overflow-y:auto;}
+.dm-search{padding:14px;border-bottom:1px solid var(--bd);}
+.dm-search input{width:100%;padding:8px 12px;background:var(--bg3);border:1px solid var(--bd);border-radius:10px;color:var(--text2);font-size:13px;font-family:inherit;outline:none;}
+.dm-thread{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;border-bottom:1px solid var(--bd);transition:background .15s;}
+.dm-thread:hover,.dm-thread.active{background:var(--bg3);}
+.dm-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;flex-shrink:0;position:relative;}
+.dm-unread{position:absolute;top:-2px;right:-2px;width:14px;height:14px;background:var(--huo);border-radius:50%;border:2px solid var(--bg2);font-size:8px;color:#fff;display:flex;align-items:center;justify-content:center;}
+.dm-info{flex:1;min-width:0;}
+.dm-name{font-size:13px;font-weight:500;}
+.dm-preview{font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;}
+.dm-time{font-size:10px;color:var(--text3);flex-shrink:0;}
+.chat-area{display:flex;flex-direction:column;height:100%;}
+.chat-header{padding:14px 20px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:12px;}
+.chat-messages{flex:1;overflow-y:auto;padding:20px;}
+.msg{display:flex;gap:10px;margin-bottom:16px;}
+.msg.me{flex-direction:row-reverse;}
+.msg-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;}
+.msg-bubble{max-width:65%;padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.6;}
+.msg .msg-bubble{background:var(--bg3);border-radius:4px 14px 14px 14px;}
+.msg.me .msg-bubble{background:var(--jin-l);border:1px solid rgba(200,168,75,.2);border-radius:14px 4px 14px 14px;color:var(--text);}
+.msg-time{font-size:10px;color:var(--text3);margin-top:4px;text-align:right;}
+.chat-input-wrap{padding:14px 20px;border-top:1px solid var(--bd);display:flex;gap:10px;}
+.chat-input{flex:1;padding:10px 14px;background:var(--bg3);border:1px solid var(--bd);border-radius:12px;color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:border-color .2s;}
+.chat-input:focus{border-color:var(--jin);}
+.btn-send{padding:10px 20px;background:linear-gradient(135deg,var(--jin-d),var(--jin));border:none;border-radius:12px;color:#1A1200;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;right:28px;background:var(--bg3);border:1px solid rgba(200,168,75,.35);border-radius:12px;padding:12px 18px;font-size:13px;display:flex;align-items:center;gap:8px;transform:translateY(80px);opacity:0;transition:all .35s cubic-bezier(.34,1.56,.64,1);z-index:999;}
+.toast.show{transform:none;opacity:1;}
+</style>
+  <script src="supabase.js"></script>
+
+<script>
+document.addEventListener('supabase-ready', async () => {
+  // 加载真实帖子
+  try {
+    const realPosts = await API.getPosts();
+    if (realPosts && realPosts.length > 0) {
+      // 转换格式以匹配现有渲染函数
+      posts = realPosts.map(p => ({
+        id:       p.id,
+        name:     p.author?.nickname || '匿名球友',
+        el:       p.author?.element  || 'jin',
+        lv:       p.author?.level    || 1,
+        city:     '—',
+        time:     timeAgo(p.created_at),
+        body:     p.body,
+        tag:      tagLabel(p.tag),
+        likes:    p.likes_count || 0,
+        comments: 0,
+        hasImg:   false,
+        avatar:   'rgba(200,168,75,.2)',
+        liked:    p.liked || false,
+        _realId:  p.id,
+      }));
+      renderPosts('all');
+    }
+  } catch(e) {
+    console.warn('加载帖子失败，使用演示数据:', e.message);
+  }
+});
+
+function timeAgo(iso) {
+  const diff = (Date.now() - new Date(iso)) / 1000;
+  if (diff < 60)   return '刚刚';
+  if (diff < 3600) return Math.floor(diff/60) + '分钟前';
+  if (diff < 86400) return Math.floor(diff/3600) + '小时前';
+  return Math.floor(diff/86400) + '天前';
+}
+function tagLabel(t) {
+  return {tips:'技术', match:'赛事', gear:'装备', qa:'问答'}[t] || '心得';
+}
+</script>
+
+</head>
+<body>
+<!-- GLOBAL NAV --><div id="g-nav" style="position:fixed;top:0;left:0;right:0;z-index:9999;background:rgba(8,8,8,0.96);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;height:48px;padding:0 24px;gap:0;font-family:Noto Sans SC,sans-serif"><a href="pingpong_home.html" id="gnav-home" style="font-family:Noto Serif SC,serif;font-size:17px;font-weight:700;letter-spacing:.05em;background:linear-gradient(135deg,#C8A84B,#E8C878,#C8A84B);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none;padding-right:20px;border-right:1px solid rgba(255,255,255,0.08);margin-right:4px;white-space:nowrap">乒乓之家</a><a href="pingpong_register.html" class="gn" style="padding:0 14px;font-size:12px;color:rgba(200,200,200,0.6);text-decoration:none;height:48px;display:flex;align-items:center;transition:color .2s;white-space:nowrap">注册/登录</a><a href="pingpong_level.html" class="gn" style="padding:0 14px;font-size:12px;color:rgba(200,200,200,0.6);text-decoration:none;height:48px;display:flex;align-items:center;transition:color .2s;white-space:nowrap">等级系统</a><a href="pingpong_tournament.html" class="gn" style="padding:0 14px;font-size:12px;color:rgba(200,200,200,0.6);text-decoration:none;height:48px;display:flex;align-items:center;transition:color .2s;white-space:nowrap">赛事大厅</a><a href="pingpong_community.html" class="gn" style="padding:0 14px;font-size:12px;color:rgba(200,200,200,0.6);text-decoration:none;height:48px;display:flex;align-items:center;transition:color .2s;white-space:nowrap">社区</a><a href="pingpong_tech.html" class="gn" style="padding:0 14px;font-size:12px;color:rgba(200,200,200,0.6);text-decoration:none;height:48px;display:flex;align-items:center;transition:color .2s;white-space:nowrap">技术架构</a><div style="flex:1"></div><a href="pingpong_register.html" style="padding:7px 18px;background:linear-gradient(135deg,#7A601A,#C8A84B);border-radius:20px;font-size:12px;font-weight:600;color:#1A1000;text-decoration:none;white-space:nowrap">免费注册</a></div><style>#g-nav .gn:hover{color:#C8A84B!important}body{padding-top:48px!important}</style>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">乒乓之家</div>
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="switchPanel('feed',this)">🏠 动态</div>
+    <div class="nav-tab" onclick="switchPanel('buddies',this)">🤝 找球友</div>
+    <div class="nav-tab" onclick="switchPanel('equip',this)">🏓 装备库</div>
+    <div class="nav-tab" onclick="switchPanel('venues',this)">📍 场馆地图</div>
+    <div class="nav-tab" onclick="switchPanel('dm',this)">💬 私信</div>
+  </div>
+  <div class="nav-right">
+    <div class="nav-notif" onclick="toast('🔔','你有 3 条新通知')"><span>🔔</span><div class="notif-dot"></div></div>
+    <div class="nav-avatar" onclick="toast('👤','个人主页功能即将上线')">张</div>
+  </div>
+</nav>
+
+<div class="app">
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-section">五行讨论区</div>
+  <div class="slink active" onclick="filterEl('all')"><span class="slink-icon">🌐</span>全部动态</div>
+  <div class="slink" onclick="filterEl('huo')" style="--c:var(--huo);--cl:var(--huo-l)"><span class="slink-icon">🔥</span>火型·攻势流<span class="slink-badge">12</span></div>
+  <div class="slink" onclick="filterEl('shui')" style="--c:var(--shui);--cl:var(--shui-l)"><span class="slink-icon">🌊</span>水型·变化流<span class="slink-badge">8</span></div>
+  <div class="slink" onclick="filterEl('jin')" style="--c:var(--jin);--cl:var(--jin-l)"><span class="slink-icon">⚡</span>金型·精准流</div>
+  <div class="slink" onclick="filterEl('mu')" style="--c:var(--mu);--cl:var(--mu-l)"><span class="slink-icon">🌳</span>木型·防守流</div>
+  <div class="slink" onclick="filterEl('tu')" style="--c:var(--tu);--cl:var(--tu-l)"><span class="slink-icon">🗻</span>土型·稳固流</div>
+  <div class="sidebar-section">内容分类</div>
+  <div class="slink" onclick="toast('📖','技术文章板块')"><span class="slink-icon">📖</span>技术文章</div>
+  <div class="slink" onclick="toast('🎬','视频集锦板块')"><span class="slink-icon">🎬</span>视频集锦<span class="slink-badge">新</span></div>
+  <div class="slink" onclick="toast('❓','问答板块')"><span class="slink-icon">❓</span>球友问答</div>
+  <div class="sidebar-section">我的</div>
+  <div class="slink" onclick="toast('📌','我的收藏')"><span class="slink-icon">📌</span>我的收藏</div>
+  <div class="slink" onclick="toast('👥','我的关注')"><span class="slink-icon">👥</span>我的关注</div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+<!-- ════ FEED ════ -->
+<div class="panel active" id="panel-feed">
+<div class="feed-layout">
+<div class="feed-main">
+  <!-- compose -->
+  <div class="compose-box">
+    <div class="compose-top">
+      <div class="my-avatar">张</div>
+      <textarea class="compose-input" placeholder="分享你的打球心得、技术心得或赛事故事…" id="compose-txt"></textarea>
+    </div>
+    <div class="compose-bot">
+      <div class="compose-tags">
+        <div class="tag-btn" onclick="selTag(this,'心得')">💡 心得</div>
+        <div class="tag-btn" onclick="selTag(this,'技术')">🎯 技术</div>
+        <div class="tag-btn" onclick="selTag(this,'赛事')">🏆 赛事</div>
+        <div class="tag-btn" onclick="selTag(this,'装备')">🏓 装备</div>
+      </div>
+      <button class="btn-post" onclick="submitPost()">发布</button>
+    </div>
+  </div>
+  <!-- posts -->
+  <div id="post-list"></div>
+</div>
+
+<div class="feed-aside">
+  <div class="aside-card">
+    <div class="aside-title">热门话题</div>
+    <div id="hot-topics"></div>
+  </div>
+  <div class="aside-card">
+    <div class="aside-title">按风格筛选</div>
+    <div class="el-filter" id="el-filter">
+      <div class="el-pill active" onclick="filterPill(this,'all')">全部</div>
+      <div class="el-pill" onclick="filterPill(this,'huo')" style="color:#C0392B;border-color:rgba(192,57,43,.3)">🔥 火型</div>
+      <div class="el-pill" onclick="filterPill(this,'shui')" style="color:#2A6EAA;border-color:rgba(42,110,170,.3)">🌊 水型</div>
+      <div class="el-pill" onclick="filterPill(this,'jin')" style="color:#C8A84B;border-color:rgba(200,168,75,.3)">⚡ 金型</div>
+      <div class="el-pill" onclick="filterPill(this,'mu')" style="color:#4A7C59;border-color:rgba(74,124,89,.3)">🌳 木型</div>
+      <div class="el-pill" onclick="filterPill(this,'tu')" style="color:#A0522D;border-color:rgba(160,82,45,.3)">🗻 土型</div>
+    </div>
+  </div>
+  <div class="aside-card">
+    <div class="aside-title">在线球友</div>
+    <div id="online-list"></div>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- ════ BUDDIES ════ -->
+<div class="panel" id="panel-buddies">
+<div class="buddies-wrap">
+  <div class="section-head">
+    <div>
+      <div style="font-size:10px;letter-spacing:.2em;color:var(--jin);margin-bottom:6px">FIND BUDDIES</div>
+      <h2>找球友</h2>
+    </div>
+  </div>
+  <div class="filter-bar">
+    <div class="fbtn active">全部</div>
+    <div class="fbtn" onclick="activeFbtn(this)">北京</div>
+    <div class="fbtn" onclick="activeFbtn(this)">上海</div>
+    <div class="fbtn" onclick="activeFbtn(this)">广州</div>
+    <div class="fbtn" onclick="activeFbtn(this)">🔥 火型</div>
+    <div class="fbtn" onclick="activeFbtn(this)">🌊 水型</div>
+    <div class="fbtn" onclick="activeFbtn(this)">⚡ 金型</div>
+    <div class="fbtn" onclick="activeFbtn(this)">40–60级</div>
+    <div class="fbtn" onclick="activeFbtn(this)">60–80级</div>
+    <div class="fbtn" onclick="activeFbtn(this)">在线</div>
+  </div>
+  <div class="buddies-grid" id="buddies-grid"></div>
+</div>
+</div>
+
+<!-- ════ EQUIPMENT ════ -->
+<div class="panel" id="panel-equip">
+<div class="equip-wrap">
+  <div class="section-head">
+    <div>
+      <div style="font-size:10px;letter-spacing:.2em;color:var(--jin);margin-bottom:6px">GEAR DATABASE</div>
+      <h2>装备库</h2>
+    </div>
+  </div>
+  <div class="filter-bar">
+    <div class="fbtn active">全部</div>
+    <div class="fbtn" onclick="activeFbtn(this)">球拍底板</div>
+    <div class="fbtn" onclick="activeFbtn(this)">正手胶皮</div>
+    <div class="fbtn" onclick="activeFbtn(this)">反手胶皮</div>
+    <div class="fbtn" onclick="activeFbtn(this)">🔥 火型推荐</div>
+    <div class="fbtn" onclick="activeFbtn(this)">🌊 水型推荐</div>
+    <div class="fbtn" onclick="activeFbtn(this)">⚡ 金型推荐</div>
+    <div class="fbtn" onclick="activeFbtn(this)">🌳 木型推荐</div>
+  </div>
+  <div class="equip-grid" id="equip-grid"></div>
+</div>
+</div>
+
+<!-- ════ VENUES ════ -->
+<div class="panel" id="panel-venues">
+<div class="venues-wrap">
+  <div class="section-head">
+    <div>
+      <div style="font-size:10px;letter-spacing:.2em;color:var(--jin);margin-bottom:6px">VENUE MAP</div>
+      <h2>场馆地图</h2>
+    </div>
+  </div>
+  <div class="map-placeholder">
+    <div style="font-size:40px">🗺️</div>
+    <div style="font-size:14px">地图加载中…（正式版接入高德地图）</div>
+    <div style="font-size:12px;color:var(--text3)">显示附近乒乓球馆、俱乐部、社区球台</div>
+  </div>
+  <div class="venue-list" id="venue-list"></div>
+</div>
+</div>
+
+<!-- ════ DM ════ -->
+<div class="panel" id="panel-dm">
+<div class="dm-layout">
+  <div class="dm-list">
+    <div class="dm-search"><input placeholder="搜索对话…" /></div>
+    <div id="dm-threads"></div>
+  </div>
+  <div class="chat-area">
+    <div class="chat-header">
+      <div class="dm-av" id="chat-av" style="background:rgba(192,57,43,.2);color:#C0392B;font-size:14px;font-weight:600;">王</div>
+      <div>
+        <div style="font-size:14px;font-weight:500" id="chat-name">王浩然</div>
+        <div style="font-size:11px;color:var(--text3)">⚡ 金型 · Lv71 · 在线</div>
+      </div>
+    </div>
+    <div class="chat-messages" id="chat-msgs"></div>
+    <div class="chat-input-wrap">
+      <input class="chat-input" placeholder="发消息…" id="chat-input" onkeydown="if(event.key==='Enter')sendMsg()">
+      <button class="btn-send" onclick="sendMsg()">发送</button>
+    </div>
+  </div>
+</div>
+</div>
+
+</div><!-- content -->
+</div><!-- app -->
+
+<div class="toast" id="toast"><span id="toast-icon"></span><span id="toast-msg"></span></div>
+
+<script>
+/* ── DATA ── */
+const elData={
+  huo:{name:'火型',color:'#C0392B',bg:'rgba(192,57,43,.18)',icon:'🔥'},
+  shui:{name:'水型',color:'#2A6EAA',bg:'rgba(42,110,170,.18)',icon:'🌊'},
+  jin:{name:'金型',color:'#C8A84B',bg:'rgba(200,168,75,.18)',icon:'⚡'},
+  mu:{name:'木型',color:'#4A7C59',bg:'rgba(74,124,89,.18)',icon:'🌳'},
+  tu:{name:'土型',color:'#A0522D',bg:'rgba(160,82,45,.18)',icon:'🗻'},
+};
+
+const posts=[
+  {id:1,name:'王浩然',el:'jin',lv:71,city:'北京',time:'10分钟前',body:'今天打了个很漂亮的反手拧拉，终于把这项技术打通了！练了三个月，感觉突破了一个瓶颈。关键在于接触球的瞬间要更"包"一点，不能只靠腕力。',tag:'技术',likes:24,comments:8,hasImg:false,avatar:'rgba(200,168,75,.2)'},
+  {id:2,name:'李思雨',el:'shui',lv:58,city:'上海',time:'35分钟前',body:'参加了今天的水型专属小赛，和几位风格相近的球友切磋了一上午。变线练得越来越顺了，感觉自己的「水」味越来越浓 😄 有没有上海的水型球友一起练？',tag:'赛事',likes:18,comments:12,hasImg:true,imgLabel:'📸 比赛现场',avatar:'rgba(42,110,170,.2)'},
+  {id:3,name:'刘峰',el:'huo',lv:68,city:'广州',time:'1小时前',body:'最近换了蝴蝶T64正手胶，正手进攻的摩擦感明显上来了。对比之前的狂飙3，感觉弧线更低平，速度更快。适合进攻型玩家！',tag:'装备',likes:31,comments:15,hasImg:false,avatar:'rgba(192,57,43,.2)'},
+  {id:4,name:'赵静',el:'tu',lv:60,city:'北京',time:'2小时前',body:'打球这件事，越打越觉得稳定性才是根本。火型球友进攻华丽，但只要我能把每一个球稳稳地接回去，等他们失误，胜算就会高很多。耐心是最强武器。',tag:'心得',likes:44,comments:20,hasImg:false,avatar:'rgba(160,82,45,.2)'},
+  {id:5,name:'陈晓月',el:'mu',lv:55,city:'深圳',time:'3小时前',body:'木型防守选手的日常：被人说无聊，但每次把对方的暴力球化解掉，就是最爽的时刻。今天防守成功率达到了92%，创历史新高！',tag:'心得',likes:37,comments:9,hasImg:false,avatar:'rgba(74,124,89,.2)'},
+];
+
+const hotTopics=[
+  {text:'反手拧拉入门完整教程',views:'1.2k'},
+  {text:'2025春季赛赛前备战心得',views:'980'},
+  {text:'蝴蝶 vs 红双喜胶皮横评',views:'876'},
+  {text:'找球友｜北京周末约战',views:'654'},
+  {text:'五行风格测定结果分享',views:'521'},
+];
+
+const onlineUsers=[
+  {name:'孙大鹏',el:'shui',lv:74},{name:'周慧',el:'jin',lv:53},{name:'刘明',el:'huo',lv:45},
+];
+
+const buddies=[
+  {name:'孙大鹏',el:'shui',lv:74,city:'北京',wins:48,draws:5,style:'以变制胜',online:true},
+  {name:'陈晓月',el:'mu',lv:55,city:'深圳',wins:62,draws:8,style:'防守铁壁',online:false},
+  {name:'刘峰',el:'huo',lv:68,city:'广州',wins:55,draws:3,style:'正手强攻',online:true},
+  {name:'周慧',el:'jin',lv:53,city:'上海',wins:39,draws:6,style:'双面均衡',online:true},
+  {name:'张一鸣',el:'tu',lv:42,city:'北京',wins:28,draws:12,style:'稳定控球',online:false},
+  {name:'林小燕',el:'shui',lv:61,city:'成都',wins:44,draws:7,style:'搓短变线',online:true},
+];
+
+const avatarColors=['rgba(42,110,170,.25)','rgba(74,124,89,.25)','rgba(192,57,43,.25)','rgba(200,168,75,.25)','rgba(160,82,45,.25)','rgba(42,110,170,.25)'];
+const avatarTextColors=['#2A6EAA','#4A7C59','#C0392B','#C8A84B','#A0522D','#2A6EAA'];
+
+const equipment=[
+  {brand:'蝴蝶',name:'T64 正手胶皮',type:'正手胶皮',bg:'#1a1a2a',icon:'🟥',rating:4.5,price:'¥298',el:'huo',tags:['进攻型','高弹性'],desc:'火型强推'},
+  {brand:'红双喜',name:'狂飙3 反手',type:'反手胶皮',bg:'#1a2a1a',icon:'🟩',rating:4.2,price:'¥168',el:'jin',tags:['控制好','粘套'],desc:'金型推荐'},
+  {brand:'斯蒂卡',name:'OC 防守底板',type:'底板',bg:'#2a1a1a',icon:'🟫',rating:4.0,price:'¥560',el:'mu',tags:['防守型','柔软'],desc:'木型必备'},
+  {brand:'尼塔库',name:'ファリエロ AZ',type:'正手胶皮',bg:'#2a2a1a',icon:'🟨',rating:4.7,price:'¥520',el:'shui',tags:['旋转强','变化多'],desc:'水型利器'},
+  {brand:'蝴蝶',name:'Viscaria 底板',type:'底板',bg:'#1a1a2a',icon:'🔵',rating:4.8,price:'¥1,280',el:'jin',tags:['碳素','速度快'],desc:'金型旗舰'},
+  {brand:'三维',name:'G888 防守胶皮',type:'反手胶皮',bg:'#2a1a2a',icon:'🟣',rating:3.9,price:'¥88',el:'mu',tags:['控制好','防守'],desc:'木型入门'},
+];
+
+const venues=[
+  {name:'朝阳区乒乓球俱乐部',addr:'北京市朝阳区工体北路12号',tables:20,hours:'08:00–22:00',price:'¥25/小时',dist:'1.2km',tags:['停车场','淋浴','教练']},
+  {name:'西城社区体育馆',addr:'北京市西城区护国寺街8号',tables:8,hours:'06:00–21:00',price:'¥15/小时',dist:'2.8km',tags:['免费停车','室内']},
+  {name:'海淀全民健身中心',addr:'北京市海淀区中关村大街89号',tables:30,hours:'07:00–23:00',price:'¥30/小时',dist:'4.1km',tags:['大型场馆','比赛级球台','空调']},
+  {name:'东城乒乓培训基地',addr:'北京市东城区东直门内大街22号',tables:12,hours:'09:00–21:00',price:'¥20/小时',dist:'5.6km',tags:['教练','青少年班','空调']},
+];
+
+const dmThreads=[
+  {name:'王浩然',el:'jin',preview:'你下周有时间约战吗？',time:'10分',unread:2},
+  {name:'李思雨',el:'shui',preview:'那个反手技巧真的很管用！',time:'35分',unread:0},
+  {name:'刘峰',el:'huo',preview:'推荐一下你的球拍配置',time:'1小时',unread:1},
+  {name:'赵静',el:'tu',preview:'下次比赛加油！',time:'昨天',unread:0},
+];
+
+const chatHistory=[
+  {me:false,text:'王浩然：你好！看到你在五行测定里也是金型，想来约个练习赛？',time:'10:20'},
+  {me:true,text:'哈哈好的！你现在是Lv多少了？',time:'10:21'},
+  {me:false,text:'刚升到71级，最近开球网分数涨了一些。你呢？',time:'10:22'},
+  {me:true,text:'我58级，差距还不小哈哈，正好可以多学习！',time:'10:23'},
+  {me:false,text:'不不，58级打起来很稳的，我正手不强，你下周六有空吗？朝阳体育馆？',time:'10:25'},
+];
+
+/* ── RENDER ── */
+let currentFilter='all';
+let invitedSet=new Set();
+
+function renderPosts(filter='all'){
+  const list=document.getElementById('post-list');
+  const filtered=filter==='all'?posts:posts.filter(p=>p.el===filter);
+  list.innerHTML=filtered.map(p=>{
+    const el=elData[p.el];
+    return `<div class="post-card" onclick="">
+      <div class="post-head">
+        <div class="post-avatar" style="background:${p.avatar};color:${el.color}">${p.name[0]}</div>
+        <div class="post-author">
+          <div class="post-name">${p.name}
+            <span class="el-tag" style="background:${el.bg};color:${el.color}">${el.icon}${el.name}</span>
+            <span class="lv-tag">Lv${p.lv}</span>
+          </div>
+          <div class="post-meta">${p.city} · ${p.time} · #${p.tag}</div>
+        </div>
+        <div class="post-time"></div>
+      </div>
+      <div class="post-body">${p.body}</div>
+      ${p.hasImg?`<div class="post-img">${p.imgLabel}</div>`:''}
+      <div class="post-footer">
+        <div class="post-action" onclick="event.stopPropagation();likePost(this,${p.id})"><span class="pa-icon">♡</span><span>${p.likes}</span></div>
+        <div class="post-action"><span class="pa-icon">💬</span><span>${p.comments}</span></div>
+        <div class="post-action" onclick="event.stopPropagation();toast('🔗','链接已复制')"><span class="pa-icon">↗</span><span>分享</span></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderHotTopics(){
+  document.getElementById('hot-topics').innerHTML=hotTopics.map((h,i)=>`
+    <div class="hot-item" onclick="toast('🔥','「${h.text}」')">
+      <div class="hot-rank" style="color:${i<3?'var(--jin)':'var(--text3)'}">${i+1}</div>
+      <div class="hot-text">${h.text}</div>
+      <div class="hot-count">${h.views}</div>
+    </div>`).join('');
+}
+
+function renderOnline(){
+  document.getElementById('online-list').innerHTML=onlineUsers.map(u=>{
+    const el=elData[u.el];
+    return `<div class="online-row">
+      <div class="o-av" style="background:${el.bg};color:${el.color};font-size:13px;font-weight:600;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;">${u.name[0]}</div>
+      <div class="o-name">${u.name} <span style="font-size:11px;color:var(--text3)">Lv${u.lv}</span></div>
+      <div class="o-dot"></div>
+    </div>`;
+  }).join('');
+}
+
+function renderBuddies(){
+  document.getElementById('buddies-grid').innerHTML=buddies.map((b,i)=>{
+    const el=elData[b.el];
+    const inv=invitedSet.has(b.name);
+    return `<div class="buddy-card">
+      <div class="buddy-av" style="background:${avatarColors[i]};color:${avatarTextColors[i]}">
+        ${b.name[0]}
+        ${b.online?'<div class="buddy-online"></div>':''}
+      </div>
+      <div class="buddy-name">${b.name}</div>
+      <div class="buddy-tags">
+        <span class="el-tag" style="background:${el.bg};color:${el.color};padding:2px 9px;border-radius:8px;font-size:11px">${el.icon}${el.name}</span>
+        <span style="background:var(--bg4);color:var(--text3);padding:2px 9px;border-radius:8px;font-size:11px;font-family:'DM Mono',monospace">Lv${b.lv}</span>
+      </div>
+      <div class="buddy-city">📍 ${b.city} · ${b.style}</div>
+      <div class="buddy-stats">
+        <div class="bs"><div class="bs-n" style="color:#6DC48A">${b.wins}</div><div class="bs-l">胜场</div></div>
+        <div class="bs"><div class="bs-n">${b.draws}</div><div class="bs-l">平局</div></div>
+      </div>
+      <button class="btn-invite ${inv?'btn-invited':''}" onclick="inviteBuddy('${b.name}',this)">${inv?'✓ 已发邀请':'约战 →'}</button>
+    </div>`;
+  }).join('');
+}
+
+function renderEquip(){
+  document.getElementById('equip-grid').innerHTML=equipment.map(e=>{
+    const el=elData[e.el];
+    const stars='★'.repeat(Math.floor(e.rating))+'☆'.repeat(5-Math.floor(e.rating));
+    return `<div class="equip-card" onclick="toast('🏓','${e.name} · ${e.price}')">
+      <div class="equip-img" style="background:${e.bg}">${e.icon}</div>
+      <div class="equip-body">
+        <div class="equip-brand">${e.brand}</div>
+        <div class="equip-name">${e.name}</div>
+        <div class="equip-tags">
+          ${e.tags.map(t=>`<span class="eq-tag" style="background:var(--bg4);color:var(--text2);border:1px solid var(--bd)">${t}</span>`).join('')}
+        </div>
+        <div class="equip-rating"><span class="stars">${stars}</span><span style="font-size:11px;color:var(--text3);margin-left:4px">${e.rating}</span></div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div class="equip-price">${e.price}</div>
+          <span class="eq-tag" style="background:${el.bg};color:${el.color}">${el.icon}${e.desc}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderVenues(){
+  document.getElementById('venue-list').innerHTML=venues.map(v=>`
+    <div class="venue-card" onclick="toast('📍','${v.name}')">
+      <div class="venue-name">${v.name}</div>
+      <div class="venue-meta">
+        📍 ${v.addr}<br>
+        🕐 ${v.hours}<br>
+        💰 ${v.price} · 🏓 ${v.tables}台
+      </div>
+      <div class="venue-tags">${v.tags.map(t=>`<span class="v-tag">${t}</span>`).join('')}</div>
+      <div class="venue-dist">📡 距你 ${v.dist}</div>
+    </div>`).join('');
+}
+
+function renderDM(){
+  document.getElementById('dm-threads').innerHTML=dmThreads.map((d,i)=>{
+    const el=elData[d.el];
+    return `<div class="dm-thread ${i===0?'active':''}" onclick="selectThread(this,'${d.name}','${d.el}')">
+      <div class="dm-av" style="background:${el.bg};color:${el.color}">
+        ${d.name[0]}
+        ${d.unread>0?`<div class="dm-unread">${d.unread}</div>`:''}
+      </div>
+      <div class="dm-info">
+        <div class="dm-name">${d.name}</div>
+        <div class="dm-preview">${d.preview}</div>
+      </div>
+      <div class="dm-time">${d.time}</div>
+    </div>`;
+  }).join('');
+  renderChatMsgs();
+}
+
+function renderChatMsgs(){
+  const area=document.getElementById('chat-msgs');
+  area.innerHTML=chatHistory.map(m=>`
+    <div class="msg ${m.me?'me':''}">
+      ${!m.me?`<div class="msg-av" style="background:rgba(200,168,75,.2);color:#C8A84B">王</div>`:''}
+      <div>
+        <div class="msg-bubble">${m.text}</div>
+        <div class="msg-time">${m.time}</div>
+      </div>
+      ${m.me?`<div class="msg-av" style="background:rgba(192,57,43,.2);color:#C0392B">张</div>`:''}
+    </div>`).join('');
+  area.scrollTop=area.scrollHeight;
+}
+
+/* ── INTERACTIONS ── */
+function switchPanel(id,tab){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  tab.classList.add('active');
+}
+
+function filterEl(el){
+  currentFilter=el;
+  document.querySelectorAll('.slink').forEach(s=>s.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  renderPosts(el);
+}
+function filterPill(el,f){
+  document.querySelectorAll('.el-pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  currentFilter=f;
+  renderPosts(f);
+}
+function activeFbtn(el){
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  toast('🔍','筛选结果已更新');
+}
+async function likePost(el, id){
+  if (!Auth.requireAuth()) return;
+  const p = posts.find(x => x.id===id || x._realId===id);
+  if (!p) return;
+
+  try {
+    const result = await API.toggleLike(p._realId || id);
+    el.classList.toggle('liked', result.liked);
+    p.liked = result.liked;
+    if (result.liked) p.likes++; else p.likes--;
+    const n = el.querySelector('span:last-child');
+    if (n) n.textContent = p.likes;
+  } catch(e) {
+    // 如果未登录已处理，其他错误提示
+    console.warn(e.message);
+  }
+}
+function selTag(el,t){
+  document.querySelectorAll('.tag-btn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+}
+async function submitPost(){
+  const ta  = document.getElementById('compose-txt');
+  const txt = ta.value.trim();
+  if (!txt) { toast('⚠️', '请先输入内容'); return; }
+  if (!Auth.requireAuth()) return;
+
+  const btn = document.querySelector('.btn-post') ||
+              document.querySelector('[onclick*="submitPost"]');
+  if (btn) { btn.textContent='发布中…'; btn.disabled=true; }
+
+  const selTag = document.querySelector('.tag-btn.sel');
+  const tagMap  = {'💡 心得':'tips','🎯 技术':'tips','🏆 赛事':'match','🏓 装备':'gear'};
+  const tagKey  = tagMap[selTag?.textContent?.trim()] || 'tips';
+
+  try {
+    const post = await API.createPost(txt, tagKey, null);
+
+    // 插入 feed 顶部
+    posts.unshift({
+      id: post.id, _realId: post.id,
+      name: Auth.user?.user_metadata?.nickname || '我',
+      el: 'huo', lv: 1, city: '', time: '刚刚',
+      body: txt, tag: tagLabel(tagKey),
+      likes: 0, comments: 0, hasImg: false,
+      avatar: 'rgba(192,57,43,.2)', liked: false
+    });
+    renderPosts(currentFilter);
+    ta.value = '';
+    toast('✅', '发布成功！+5 积分');
+  } catch (err) {
+    toast('❌', window.handleError ? window.handleError(err) : '发布失败');
+  } finally {
+    if (btn) { btn.textContent='发布'; btn.disabled=false; }
+  }
+}
+function inviteBuddy(name,btn){
+  invitedSet.add(name);
+  btn.textContent='✓ 已发邀请';
+  btn.classList.add('btn-invited');
+  toast('🤝',`已向 ${name} 发出约战邀请！`);
+}
+function selectThread(el,name,elType){
+  document.querySelectorAll('.dm-thread').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('chat-name').textContent=name;
+  const elInfo=elData[elType];
+  document.getElementById('chat-av').textContent=name[0];
+  document.getElementById('chat-av').style.background=elInfo.bg;
+  document.getElementById('chat-av').style.color=elInfo.color;
+}
+function sendMsg(){
+  const inp=document.getElementById('chat-input');
+  const txt=inp.value.trim();
+  if(!txt) return;
+  chatHistory.push({me:true,text:txt,time:'刚刚'});
+  renderChatMsgs();
+  inp.value='';
+  setTimeout(()=>{
+    chatHistory.push({me:false,text:'收到！我等你消息 😄',time:'刚刚'});
+    renderChatMsgs();
+  },1200);
+}
+function toast(icon,msg){
+  const t=document.getElementById('toast');
+  document.getElementById('toast-icon').textContent=icon;
+  document.getElementById('toast-msg').textContent=msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+/* ── INIT ── */
+renderPosts();
+renderHotTopics();
+renderOnline();
+renderBuddies();
+renderEquip();
+renderVenues();
+renderDM();
+</script>
+
+<script>
+(function(){
+  var links = document.querySelectorAll('#g-nav .gn');
+  links.forEach(function(a){
+    if(a.textContent.indexOf('社区') >= 0 || a.id === '社区'){
+      a.style.color = '#C8A84B';
+      a.style.borderBottom = '2px solid #C8A84B';
+    }
+  });
+  if('社区' === 'gnav-home'){
+    var logo = document.getElementById('gnav-home');
+    if(logo) logo.style.opacity = '1';
+  }
+})();
+</script>
+</body>
+</html>

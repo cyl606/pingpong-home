@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>乒乓之家 · 后端配置</title>
+<style>
+body{font-family:monospace;background:#0C0C0E;color:#EDE8DF;padding:40px;max-width:700px;margin:0 auto;line-height:1.8}
+h1{color:#C8A84B;font-size:22px;margin-bottom:8px}
+h2{color:#C8A84B;font-size:15px;margin:28px 0 8px;border-bottom:1px solid rgba(200,168,75,.2);padding-bottom:6px}
+p{color:#A8A49C;font-size:14px;margin-bottom:12px}
+input{width:100%;padding:10px 14px;background:#161618;border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#EDE8DF;font-size:14px;font-family:monospace;box-sizing:border-box;margin-bottom:10px}
+input:focus{outline:none;border-color:#C8A84B}
+button{padding:12px 28px;background:linear-gradient(135deg,#7A601A,#C8A84B);border:none;border-radius:24px;color:#1A1000;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.tip{background:rgba(200,168,75,.08);border:1px solid rgba(200,168,75,.2);border-radius:8px;padding:14px;font-size:13px;color:#A8A49C;margin-top:16px}
+.tip code{color:#C8A84B}
+.success{color:#6DC48A;background:rgba(74,124,89,.1);border:1px solid rgba(74,124,89,.3);border-radius:8px;padding:14px;display:none;margin-top:16px;font-size:14px}
+</style>
+</head>
+<body>
+<h1>⚙️ 乒乓之家 · 后端配置</h1>
+<p>填入你的 Supabase 项目信息，自动写入所有页面。只需配置一次。</p>
+
+<h2>第一步：填入 Supabase 信息</h2>
+<p>在 <a href="https://app.supabase.com" target="_blank" style="color:#C8A84B">app.supabase.com</a> → 你的项目 → Settings → API</p>
+<input id="url"  placeholder="Project URL，例：https://abcxyz.supabase.co" />
+<input id="anon" placeholder="anon public key，很长的一串字符" />
+
+<h2>第二步：点击配置</h2>
+<button onclick="configure()">写入配置 →</button>
+<div class="success" id="success">
+  ✅ 配置写入成功！<br><br>
+  现在打开 <code style="color:#C8A84B">pingpong_home.html</code> 即可使用真实后端。<br><br>
+  如果是第一次使用，还需要在 Supabase SQL Editor 执行 <code style="color:#C8A84B">supabase_setup.sql</code>
+</div>
+
+<div class="tip">
+  💡 找不到 anon key？<br>
+  登录 Supabase → 选择项目 → 左侧菜单 Settings → API → 找到 <code>anon public</code> 那行 → 点 Copy
+</div>
+
+<h2>第三步：执行数据库建表脚本</h2>
+<p>在 Supabase 控制台 → SQL Editor → 粘贴 <code>supabase_setup.sql</code> 全部内容 → Run</p>
+<p style="color:#6DC48A">只需执行一次，之后数据会自动管理。</p>
+
+<script>
+function configure() {
+  const url  = document.getElementById('url').value.trim();
+  const anon = document.getElementById('anon').value.trim();
+
+  if (!url || !anon) { alert('请填写 URL 和 anon key'); return; }
+  if (!url.includes('supabase.co')) { alert('URL 格式不对，应该包含 supabase.co'); return; }
+
+  // 用 localStorage 保存配置（supabase.js 会读取）
+  localStorage.setItem('pp_supabase_url',  url);
+  localStorage.setItem('pp_supabase_anon', anon);
+
+  document.getElementById('success').style.display = 'block';
+  alert('配置保存成功！现在可以打开 pingpong_home.html 了。');
+}
+</script>
+</body>
+</html>

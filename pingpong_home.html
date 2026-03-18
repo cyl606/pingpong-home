@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>乒乓之家</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700;900&family=Noto+Sans+SC:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>html{scroll-padding-top:96px}
+:root{
+  --jin:#C8A84B;--jin2:#E8C878;--jin3:#F5E6B8;--jin-d:#7A601A;--jin-dd:#3D2E08;
+  --huo:#C0392B;--mu:#4A7C59;--shui:#1A4A7A;--tu:#8B4513;
+  --bg:#080808;--bg2:#0E0E10;--bg3:#161618;--bg4:#1E1E22;--bg5:#26262C;
+  --text:#F0EBE0;--text2:#B8B2A8;--text3:#7A7570;--text4:#4A4540;
+  --bd:rgba(255,255,255,.06);--bd2:rgba(255,255,255,.1);
+  --r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;}
+
+/* ══ NOISE TEXTURE OVERLAY ══ */
+body::after{content:'';position:fixed;inset:0;opacity:.025;pointer-events:none;z-index:1000;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:256px;}
+
+/* ══ NAV ══ */
+.nav{
+  position:fixed;top:48px;left:0;right:0;z-index:500;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 48px;height:64px;
+  border-bottom:1px solid transparent;
+  transition:all .4s;
+}
+.nav.scrolled{background:rgba(8,8,8,.92);backdrop-filter:blur(20px);border-bottom-color:var(--bd);}
+.nav-logo{
+  font-family:'Noto Serif SC',serif;font-size:22px;font-weight:700;
+  letter-spacing:.06em;cursor:pointer;
+  background:linear-gradient(135deg,var(--jin-d) 0%,var(--jin) 40%,var(--jin2) 60%,var(--jin) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  display:flex;align-items:center;gap:8px;
+}
+.logo-ball{
+  width:10px;height:10px;border-radius:50%;
+  background:var(--huo);-webkit-text-fill-color:initial;
+  box-shadow:0 0 8px rgba(192,57,43,.6);
+  animation:pulse-ball 2s ease-in-out infinite;
+}
+@keyframes pulse-ball{0%,100%{box-shadow:0 0 8px rgba(192,57,43,.6);}50%{box-shadow:0 0 16px rgba(192,57,43,.9);}}
+.nav-links{display:flex;gap:32px;}
+.nav-link{font-size:13px;color:var(--text3);cursor:pointer;transition:color .2s;letter-spacing:.03em;}
+.nav-link:hover{color:var(--text);}
+.nav-cta{
+  display:flex;gap:10px;align-items:center;
+}
+.btn-ghost{padding:8px 20px;border:1px solid var(--bd2);border-radius:24px;color:var(--text2);font-size:13px;cursor:pointer;background:transparent;font-family:inherit;transition:all .2s;}
+.btn-ghost:hover{border-color:var(--jin);color:var(--jin);}
+.btn-gold{padding:9px 24px;border-radius:24px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:inherit;letter-spacing:.04em;
+  background:linear-gradient(135deg,var(--jin-d) 0%,var(--jin) 50%,var(--jin2) 100%);
+  color:#1A1000;transition:opacity .2s,transform .15s;}
+.btn-gold:hover{opacity:.9;transform:translateY(-1px);}
+
+/* ══ HERO ══ */
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;padding:120px 40px 80px;text-align:center;
+}
+/* radial glow bg */
+.hero::before{content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 40%,rgba(200,168,75,.07) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 40% at 20% 80%,rgba(192,57,43,.05) 0%,transparent 50%),
+    radial-gradient(ellipse 40% 50% at 80% 20%,rgba(26,74,122,.06) 0%,transparent 50%);
+  pointer-events:none;}
+
+/* Orbit rings */
+.orbit-wrap{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+.ring{position:absolute;border-radius:50%;border:1px solid;transform:translate(-50%,-50%);animation:spin-ring linear infinite;}
+@keyframes spin-ring{to{transform:translate(-50%,-50%) rotate(360deg);}}
+.ring1{width:600px;height:600px;top:50%;left:50%;border-color:rgba(200,168,75,.06);animation-duration:40s;}
+.ring2{width:900px;height:900px;top:50%;left:50%;border-color:rgba(200,168,75,.04);animation-duration:60s;animation-direction:reverse;}
+.ring3{width:1200px;height:1200px;top:50%;left:50%;border-color:rgba(200,168,75,.02);animation-duration:80s;}
+/* Ball dot on ring */
+.ring1::after{content:'';position:absolute;width:8px;height:8px;background:var(--huo);border-radius:50%;top:0;left:50%;transform:translate(-50%,-50%);box-shadow:0 0 12px rgba(192,57,43,.8);}
+
+/* Five-element floating badges */
+.el-floats{position:absolute;inset:0;pointer-events:none;}
+.el-float{
+  position:absolute;padding:8px 16px;border-radius:20px;
+  font-size:12px;font-weight:500;letter-spacing:.04em;
+  border:1px solid;backdrop-filter:blur(8px);
+  animation:float-el ease-in-out infinite;
+  white-space:nowrap;
+}
+@keyframes float-el{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+.ef1{top:22%;left:8%;color:#C8A84B;background:rgba(200,168,75,.1);border-color:rgba(200,168,75,.2);animation-duration:4s;animation-delay:0s;}
+.ef2{top:30%;right:7%;color:#C0392B;background:rgba(192,57,43,.1);border-color:rgba(192,57,43,.2);animation-duration:5s;animation-delay:.8s;}
+.ef3{bottom:30%;left:10%;color:#4A7C59;background:rgba(74,124,89,.1);border-color:rgba(74,124,89,.2);animation-duration:4.5s;animation-delay:1.5s;}
+.ef4{bottom:28%;right:9%;color:#2A6EAA;background:rgba(42,110,170,.1);border-color:rgba(42,110,170,.2);animation-duration:5.5s;animation-delay:.4s;}
+.ef5{top:65%;left:50%;transform:translateX(-50%);color:#A0522D;background:rgba(160,82,45,.1);border-color:rgba(160,82,45,.2);animation-duration:6s;animation-delay:1s;}
+
+.hero-tag{
+  display:inline-block;padding:6px 18px;border-radius:20px;
+  font-size:11px;letter-spacing:.22em;color:var(--jin);
+  background:rgba(200,168,75,.08);border:1px solid rgba(200,168,75,.2);
+  margin-bottom:28px;
+  animation:fadeUp .8s ease both;
+}
+.hero-title{
+  font-family:'Noto Serif SC',serif;font-size:clamp(52px,8vw,96px);
+  font-weight:700;line-height:1.05;margin-bottom:28px;
+  animation:fadeUp .8s .15s ease both;
+  letter-spacing:-.01em;
+}
+.hero-title .line1{display:block;color:var(--text);}
+.hero-title .line2{
+  display:block;
+  background:linear-gradient(135deg,var(--jin-d) 0%,var(--jin) 35%,var(--jin2) 60%,var(--jin3) 80%,var(--jin) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-size:200% auto;animation:shimmer 4s linear infinite,fadeUp .8s .15s ease both;
+}
+@keyframes shimmer{to{background-position:200% center;}}
+.hero-sub{
+  font-size:17px;color:var(--text2);line-height:1.8;max-width:560px;margin:0 auto 44px;
+  animation:fadeUp .8s .3s ease both;
+  font-weight:300;
+}
+.hero-btns{
+  display:flex;gap:14px;justify-content:center;flex-wrap:wrap;
+  animation:fadeUp .8s .45s ease both;margin-bottom:60px;
+}
+.btn-hero-main{
+  padding:16px 40px;border-radius:30px;font-size:16px;font-weight:600;
+  cursor:pointer;border:none;font-family:inherit;letter-spacing:.04em;
+  background:linear-gradient(135deg,var(--jin-d),var(--jin),var(--jin2));
+  color:#1A1000;transition:all .25s;
+  box-shadow:0 8px 32px rgba(200,168,75,.25);
+}
+.btn-hero-main:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(200,168,75,.35);}
+.btn-hero-sec{
+  padding:16px 32px;border-radius:30px;font-size:15px;cursor:pointer;
+  border:1px solid var(--bd2);color:var(--text2);background:transparent;
+  font-family:inherit;transition:all .25s;
+}
+.btn-hero-sec:hover{border-color:var(--jin);color:var(--jin);}
+
+/* stats strip */
+.hero-stats{
+  display:flex;gap:48px;justify-content:center;flex-wrap:wrap;
+  animation:fadeUp .8s .6s ease both;
+  padding-top:32px;border-top:1px solid var(--bd);
+}
+.h-stat{}
+.h-stat-n{font-family:'DM Mono',monospace;font-size:32px;font-weight:500;color:var(--jin);line-height:1;}
+.h-stat-l{font-size:12px;color:var(--text3);margin-top:6px;letter-spacing:.06em;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:none;}}
+
+/* ══ SECTION COMMON ══ */
+section{padding:100px 40px;max-width:1200px;margin:0 auto;}
+.s-tag{font-size:10px;letter-spacing:.25em;color:var(--jin);margin-bottom:14px;}
+.s-title{font-family:'Noto Serif SC',serif;font-size:clamp(28px,4vw,44px);font-weight:600;line-height:1.25;margin-bottom:16px;}
+.s-sub{font-size:15px;color:var(--text2);line-height:1.8;max-width:560px;font-weight:300;}
+.section-divider{height:1px;background:linear-gradient(90deg,transparent,var(--bd2),transparent);margin:0 40px;}
+
+/* ══ FEATURES: FIVE ELEMENTS ══ */
+.features-head{text-align:center;margin-bottom:60px;}
+.el-cards{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}
+.el-card{
+  border-radius:18px;padding:28px 20px 24px;
+  border:1px solid var(--bd);background:var(--bg2);
+  cursor:pointer;transition:all .3s;position:relative;overflow:hidden;
+  text-align:center;
+}
+.el-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .3s;background:var(--el-bg);}
+.el-card:hover{transform:translateY(-6px);}
+.el-card:hover::before{opacity:1;}
+.el-card:hover{border-color:var(--el-c);}
+.el-glyph{
+  font-family:'Noto Serif SC',serif;font-size:52px;font-weight:900;
+  line-height:1;margin-bottom:12px;color:var(--el-c);
+  position:relative;z-index:1;
+  text-shadow:0 0 40px var(--el-c);
+}
+.el-card-name{font-family:'Noto Serif SC',serif;font-size:17px;font-weight:600;color:var(--el-c);margin-bottom:6px;position:relative;z-index:1;}
+.el-card-sub{font-size:12px;color:var(--text3);margin-bottom:16px;position:relative;z-index:1;line-height:1.6;}
+.el-traits{display:flex;flex-direction:column;gap:5px;position:relative;z-index:1;}
+.el-trait{font-size:11px;color:var(--text2);background:rgba(255,255,255,.04);border-radius:6px;padding:4px 8px;}
+.el-icon-big{font-size:24px;margin-bottom:8px;display:block;}
+
+/* ══ HOW IT WORKS ══ */
+.hiw-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;align-items:center;margin-top:60px;}
+.hiw-steps{display:flex;flex-direction:column;gap:0;}
+.hiw-step{
+  display:flex;gap:20px;padding:28px 0;
+  border-bottom:1px solid var(--bd);cursor:pointer;
+  transition:all .2s;position:relative;
+}
+.hiw-step:last-child{border-bottom:none;}
+.hiw-step.active .step-num{background:linear-gradient(135deg,var(--jin-d),var(--jin));color:#1A1000;}
+.hiw-step.active .step-title{color:var(--jin);}
+.step-num{
+  width:44px;height:44px;border-radius:12px;
+  background:var(--bg4);border:1px solid var(--bd);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'DM Mono',monospace;font-size:16px;font-weight:500;
+  color:var(--text3);flex-shrink:0;transition:all .3s;
+}
+.step-content{flex:1;}
+.step-title{font-size:16px;font-weight:500;margin-bottom:6px;transition:color .2s;}
+.step-desc{font-size:13px;color:var(--text2);line-height:1.7;}
+.hiw-visual{padding-left:60px;}
+.visual-card{
+  background:var(--bg2);border:1px solid var(--bd);border-radius:20px;
+  overflow:hidden;transition:all .4s;
+}
+.vc-header{
+  padding:16px 20px;border-bottom:1px solid var(--bd);
+  display:flex;align-items:center;gap:8px;
+}
+.vc-dot{width:10px;height:10px;border-radius:50%;}
+.vc-body{padding:24px;}
+/* mini quiz preview */
+.mini-quiz{}
+.mq-q{font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.5;}
+.mq-opt{
+  padding:9px 14px;border-radius:10px;font-size:13px;
+  border:1px solid var(--bd);margin-bottom:7px;color:var(--text2);
+  cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:8px;
+}
+.mq-opt:hover,.mq-opt.sel{border-color:var(--jin);color:var(--jin);background:rgba(200,168,75,.06);}
+/* mini level bar */
+.mini-level{padding:8px 0;}
+.ml-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.ml-label{font-size:12px;color:var(--text2);width:60px;}
+.ml-track{flex:1;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;}
+.ml-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--jin-d),var(--jin));}
+.ml-val{font-family:'DM Mono',monospace;font-size:11px;color:var(--jin);width:30px;text-align:right;}
+.mini-lv-badge{
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  background:var(--bg3);border-radius:12px;padding:16px;margin-top:8px;
+}
+.mlb-num{font-family:'DM Mono',monospace;font-size:36px;font-weight:500;color:var(--jin);}
+.mlb-label{font-size:12px;color:var(--text3);}
+/* mini bracket */
+.mini-bracket{display:flex;gap:8px;align-items:center;}
+.mb-round{display:flex;flex-direction:column;gap:6px;}
+.mb-match{background:var(--bg3);border:1px solid var(--bd);border-radius:8px;width:90px;}
+.mb-p{display:flex;align-items:center;gap:5px;padding:5px 8px;font-size:11px;border-bottom:1px solid var(--bd);}
+.mb-p:last-child{border-bottom:none;}
+.mb-p.w{color:var(--jin);}
+.mb-conn{color:var(--text4);font-size:18px;}
+
+/* ══ LEVEL SHOWCASE ══ */
+.level-section{background:var(--bg2);border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);padding:80px 40px;}
+.level-inner{max-width:1200px;margin:0 auto;}
+.level-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:48px;}
+.tier-show{
+  border-radius:16px;padding:24px 16px;text-align:center;
+  border:1px solid var(--bd);background:var(--bg3);
+  transition:all .3s;cursor:default;position:relative;overflow:hidden;
+}
+.tier-show::after{content:'';position:absolute;inset:0;opacity:0;transition:opacity .3s;background:var(--tc);}
+.tier-show:hover::after{opacity:.05;}
+.tier-show:hover{transform:translateY(-4px);}
+.tier-badge{font-size:36px;margin-bottom:10px;display:block;}
+.tier-name-txt{font-family:'Noto Serif SC',serif;font-size:14px;font-weight:600;margin-bottom:4px;color:var(--tc-text);}
+.tier-lv-range{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);margin-bottom:8px;}
+.tier-score-range{font-size:11px;color:var(--text3);}
+.tier-bar-wrap{height:4px;background:var(--bg4);border-radius:2px;margin-top:14px;overflow:hidden;}
+.tier-bar-f{height:100%;border-radius:2px;background:var(--tc-text);}
+
+/* ══ TESTIMONIALS ══ */
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px;}
+.testi-card{
+  background:var(--bg2);border:1px solid var(--bd);border-radius:16px;padding:24px;
+  transition:border-color .25s;cursor:default;
+}
+.testi-card:hover{border-color:var(--bd2);}
+.testi-stars{color:var(--jin);font-size:14px;margin-bottom:12px;}
+.testi-text{font-size:14px;color:var(--text2);line-height:1.8;margin-bottom:16px;font-style:italic;}
+.testi-author{display:flex;align-items:center;gap:10px;}
+.ta-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;}
+.ta-name{font-size:13px;font-weight:500;}
+.ta-meta{font-size:11px;color:var(--text3);margin-top:2px;}
+
+/* ══ CTA BANNER ══ */
+.cta-banner{
+  margin:0 40px 100px;border-radius:24px;
+  background:linear-gradient(135deg,var(--jin-dd) 0%,rgba(122,96,26,.6) 50%,var(--jin-dd) 100%);
+  border:1px solid rgba(200,168,75,.2);
+  padding:64px 48px;text-align:center;position:relative;overflow:hidden;
+}
+.cta-banner::before{content:'乒乓之家';
+  position:absolute;right:-20px;bottom:-30px;
+  font-family:'Noto Serif SC',serif;font-size:120px;font-weight:900;
+  color:rgba(200,168,75,.06);letter-spacing:.1em;pointer-events:none;}
+.cta-title{font-family:'Noto Serif SC',serif;font-size:clamp(24px,4vw,40px);font-weight:600;margin-bottom:14px;}
+.cta-sub{font-size:15px;color:var(--text2);margin-bottom:36px;font-weight:300;}
+.cta-input-row{display:flex;gap:10px;justify-content:center;max-width:480px;margin:0 auto;}
+.cta-input{
+  flex:1;padding:14px 20px;background:rgba(0,0,0,.4);border:1px solid rgba(200,168,75,.3);
+  border-radius:24px;color:var(--text);font-size:15px;font-family:inherit;outline:none;
+  transition:border-color .2s;
+}
+.cta-input:focus{border-color:var(--jin);}
+.btn-cta{padding:14px 32px;border-radius:24px;font-size:15px;font-weight:600;cursor:pointer;border:none;font-family:inherit;
+  background:linear-gradient(135deg,var(--jin-d),var(--jin),var(--jin2));color:#1A1000;
+  transition:all .2s;white-space:nowrap;}
+.btn-cta:hover{opacity:.9;transform:translateY(-1px);}
+
+/* ══ FOOTER ══ */
+footer{background:var(--bg2);border-top:1px solid var(--bd);padding:48px 40px 32px;}
+.footer-inner{max-width:1200px;margin:0 auto;}
+.footer-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px;}
+.footer-logo{font-family:'Noto Serif SC',serif;font-size:20px;font-weight:700;letter-spacing:.05em;
+  background:linear-gradient(135deg,var(--jin-d),var(--jin));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:12px;}
+.footer-desc{font-size:13px;color:var(--text3);line-height:1.8;margin-bottom:20px;}
+.footer-social{display:flex;gap:10px;}
+.social-btn{width:34px;height:34px;border-radius:50%;background:var(--bg4);border:1px solid var(--bd);
+  display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;transition:border-color .2s;}
+.social-btn:hover{border-color:var(--jin);}
+.footer-col h4{font-size:12px;letter-spacing:.12em;color:var(--text3);margin-bottom:14px;}
+.footer-links{display:flex;flex-direction:column;gap:8px;}
+.footer-link{font-size:13px;color:var(--text3);cursor:pointer;transition:color .2s;}
+.footer-link:hover{color:var(--jin);}
+.footer-bot{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--bd);padding-top:24px;font-size:12px;color:var(--text4);}
+.five-dots{display:flex;gap:5px;}
+.five-dot{width:8px;height:8px;border-radius:50%;}
+
+/* ══ SCROLL REVEAL ══ */
+.reveal{opacity:0;transform:translateY(32px);transition:opacity .7s ease,transform .7s ease;}
+.reveal.visible{opacity:1;transform:none;}
+
+/* ══ RESPONSIVE ══ */
+@media(max-width:900px){
+  .el-cards{grid-template-columns:repeat(2,1fr);}
+  .hiw-grid{grid-template-columns:1fr;}
+  .hiw-visual{padding-left:0;margin-top:32px;}
+  .level-grid{grid-template-columns:repeat(2,1fr);}
+  .testi-grid{grid-template-columns:1fr;}
+  .footer-top{grid-template-columns:1fr 1fr;}
+  .nav-links{display:none;}
+  .nav{padding:0 20px;}
+}
+</style>
+  <script src="supabase.js"></script>
+</head>
+<body>
+<!-- GLOBAL NAV --><div id="g-nav" style="position:fixed;top:0;left:0;right:0;z-index:9999;background:rgba(8,8,8,0.96);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;height:48px;padding:0 24px;gap:0;font-family:Noto Sans SC,sans-serif"><a href="pingpong_home.html" id="gnav-home" style="font-family:Noto Serif SC,serif;font-size:17px;font-weight:700;letter-spacing:.05em;background:linear-gradient(135deg,#C8A84B,#E8C878,#C8A84B);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none;padding-right:20px;border-right:1px solid rgba(255,255,255,0.08);margin-right:4px;white-space:nowrap">乒乓之家</a><a href="pingpong_register.html" class="gn" style="padding:0 14px;font-size:12px;color:rgba(200,200,200,0.6);text-decoration:none;height:48px;display:flex;align-items:center;transition:color .2s;white-space:nowrap">注册/登录</a><a href="pingpong_level.html" class="gn" style="padding:0 14px;font-size:12px;color:rgba(200,200,200,0.6);text-decoration:none;height:48px;display:flex;align-items:center;transition:color .2s;white-space:nowrap">等级系统</a><a href="pingpong_tournament.html" class="gn" style="padding:0 14px;font-size:12px;color:rgba(200,200,200,0.6);text-decoration:none;height:48px;display:flex;align-items:center;transition:color .2s;white-space:nowrap">赛事大厅</a><a href="pingpong_community.html" class="gn" style="padding:0 14px;font-size:12px;color:rgba(200,200,200,0.6);text-decoration:none;height:48px;display:flex;align-items:center;transition:color .2s;white-space:nowrap">社区</a><a href="pingpong_tech.html" class="gn" style="padding:0 14px;font-size:12px;color:rgba(200,200,200,0.6);text-decoration:none;height:48px;display:flex;align-items:center;transition:color .2s;white-space:nowrap">技术架构</a><div style="flex:1"></div><a href="pingpong_register.html" style="padding:7px 18px;background:linear-gradient(135deg,#7A601A,#C8A84B);border-radius:20px;font-size:12px;font-weight:600;color:#1A1000;text-decoration:none;white-space:nowrap">免费注册</a></div><style>#g-nav .gn:hover{color:#C8A84B!important}body{padding-top:48px!important}</style>
+
+<!-- ══ NAV ══ -->
+<nav class="nav" id="nav">
+  <div class="nav-logo" onclick="scrollTo(0,0)">
+    <span>乒乓之家</span>
+    <div class="logo-ball"></div>
+  </div>
+  <div class="nav-links">
+    <div class="nav-link" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">五行体系</div>
+    <div class="nav-link" onclick="document.getElementById('levels').scrollIntoView({behavior:'smooth'})">等级制度</div>
+    <div class="nav-link" onclick="document.getElementById('hiw').scrollIntoView({behavior:'smooth'})">如何使用</div>
+    <div class="nav-link" onclick="document.getElementById('community').scrollIntoView({behavior:'smooth'})">社区</div>
+  </div>
+  <div class="nav-cta">
+    <button class="btn-ghost">登录</button>
+    <button class="btn-gold" onclick="location.href='pingpong_register.html'">免费注册</button>
+  </div>
+</nav>
+
+<!-- ══ HERO ══ -->
+<div class="hero">
+  <div class="orbit-wrap">
+    <div class="ring ring1"></div>
+    <div class="ring ring2"></div>
+    <div class="ring ring3"></div>
+  </div>
+  <div class="el-floats">
+    <div class="el-float ef1">⚡ 金型·精准流</div>
+    <div class="el-float ef2">🔥 火型·攻势流</div>
+    <div class="el-float ef3">🌳 木型·防守流</div>
+    <div class="el-float ef4">🌊 水型·变化流</div>
+    <div class="el-float ef5">🗻 土型·稳固流</div>
+  </div>
+
+  <div class="hero-tag">PING PONG HOME · 乒乓之家</div>
+  <h1 class="hero-title">
+    <span class="line1">找到你的</span>
+    <span class="line2">乒乓命格</span>
+  </h1>
+  <p class="hero-sub">五行风格测定 · 百级段位体系 · 开球网积分对接<br>一个属于中国乒乓球爱好者的家</p>
+  <div class="hero-btns">
+    <button class="btn-hero-main" onclick="location.href='pingpong_register.html'">开始测定五行风格 →</button>
+    <button class="btn-hero-sec" onclick="document.getElementById('hiw').scrollIntoView({behavior:'smooth'})">了解更多</button>
+  </div>
+  <div class="hero-stats">
+    <div class="h-stat"><div class="h-stat-n" id="cnt-users">0</div><div class="h-stat-l">注册球友</div></div>
+    <div class="h-stat"><div class="h-stat-n" id="cnt-matches">0</div><div class="h-stat-l">场赛事举办</div></div>
+    <div class="h-stat"><div class="h-stat-n" id="cnt-cities">0</div><div class="h-stat-l">覆盖城市</div></div>
+    <div class="h-stat"><div class="h-stat-n" id="cnt-venues">0</div><div class="h-stat-l">合作球馆</div></div>
+  </div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ══ FIVE ELEMENTS ══ -->
+<section id="features">
+  <div class="features-head reveal">
+    <div class="s-tag">FIVE ELEMENTS · 五行体系</div>
+    <div class="s-title">你是哪一型球手？</div>
+    <div class="s-sub" style="margin:0 auto;text-align:center">通过专业问卷，我们将你的打球风格映射到五行体系，找到最适合你的战术路线和装备推荐。</div>
+  </div>
+  <div class="el-cards reveal">
+    <div class="el-card" style="--el-c:#C8A84B;--el-bg:rgba(200,168,75,.06)" onclick="toast('⚡','金型·精准流 — 以精密战术压制对手')">
+      <div class="el-icon-big">⚡</div>
+      <div class="el-glyph">金</div>
+      <div class="el-card-name">精准流</div>
+      <div class="el-card-sub">正反手均衡<br>技术系统完整</div>
+      <div class="el-traits"><div class="el-trait">双面稳定</div><div class="el-trait">落点精准</div><div class="el-trait">战术清晰</div></div>
+    </div>
+    <div class="el-card" style="--el-c:#C0392B;--el-bg:rgba(192,57,43,.06)" onclick="toast('🔥','火型·攻势流 — 以爆发力主导比赛节奏')">
+      <div class="el-icon-big">🔥</div>
+      <div class="el-glyph">火</div>
+      <div class="el-card-name">攻势流</div>
+      <div class="el-card-sub">强力正手进攻<br>爆发力惊人</div>
+      <div class="el-traits"><div class="el-trait">正手暴力</div><div class="el-trait">节奏快</div><div class="el-trait">心理强势</div></div>
+    </div>
+    <div class="el-card" style="--el-c:#4A7C59;--el-bg:rgba(74,124,89,.06)" onclick="toast('🌳','木型·防守流 — 以无懈可击的防守消耗对手')">
+      <div class="el-icon-big">🌳</div>
+      <div class="el-glyph">木</div>
+      <div class="el-card-name">防守流</div>
+      <div class="el-card-sub">超强韧性防守<br>以守待攻</div>
+      <div class="el-traits"><div class="el-trait">铁壁防线</div><div class="el-trait">体能充沛</div><div class="el-trait">耐心极强</div></div>
+    </div>
+    <div class="el-card" style="--el-c:#2A6EAA;--el-bg:rgba(42,110,170,.06)" onclick="toast('🌊','水型·变化流 — 以无穷变化迷惑对手')">
+      <div class="el-icon-big">🌊</div>
+      <div class="el-glyph">水</div>
+      <div class="el-card-name">变化流</div>
+      <div class="el-card-sub">旋转变化丰富<br>手感细腻</div>
+      <div class="el-traits"><div class="el-trait">旋转变化</div><div class="el-trait">摆短高手</div><div class="el-trait">灵活多变</div></div>
+    </div>
+    <div class="el-card" style="--el-c:#A0522D;--el-bg:rgba(160,82,45,.06)" onclick="toast('🗻','土型·稳固流 — 以稳如泰山的稳定性克制一切')">
+      <div class="el-icon-big">🗻</div>
+      <div class="el-glyph">土</div>
+      <div class="el-card-name">稳固流</div>
+      <div class="el-card-sub">失误率极低<br>战术素养高</div>
+      <div class="el-traits"><div class="el-trait">超强稳定</div><div class="el-trait">心理稳健</div><div class="el-trait">全面均衡</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ══ HOW IT WORKS ══ -->
+<section id="hiw">
+  <div class="reveal">
+    <div class="s-tag">HOW IT WORKS · 使用流程</div>
+    <div class="s-title">三步建立你的<br>乒乓档案</div>
+  </div>
+  <div class="hiw-grid">
+    <div class="hiw-steps reveal">
+      <div class="hiw-step active" onclick="setStep(0,this)">
+        <div class="step-num">01</div>
+        <div class="step-content">
+          <div class="step-title">注册 · 完成五行测定</div>
+          <div class="step-desc">填写基本信息后，完成6道专业问卷，系统自动判定你的五行风格属性，生成专属徽章。</div>
+        </div>
+      </div>
+      <div class="hiw-step" onclick="setStep(1,this)">
+        <div class="step-num">02</div>
+        <div class="step-content">
+          <div class="step-title">绑定开球网 · 确认等级</div>
+          <div class="step-desc">绑定开球网账号，自动同步积分，换算为1–100级段位。未注册用户可通过自评通道入档。</div>
+        </div>
+      </div>
+      <div class="hiw-step" onclick="setStep(2,this)">
+        <div class="step-num">03</div>
+        <div class="step-content">
+          <div class="step-title">参赛 · 找球友 · 成长</div>
+          <div class="step-desc">报名适合等级的赛事，按风格匹配球友，在社区分享技术心得，见证每一次升级。</div>
+        </div>
+      </div>
+    </div>
+    <div class="hiw-visual reveal">
+      <div class="visual-card" id="visual-card">
+        <div class="vc-header">
+          <div class="vc-dot" style="background:#FF5F57"></div>
+          <div class="vc-dot" style="background:#FFBD2E"></div>
+          <div class="vc-dot" style="background:#28C840"></div>
+          <span style="font-size:12px;color:var(--text3);margin-left:8px" id="vc-label">五行测定</span>
+        </div>
+        <div class="vc-body" id="vc-body">
+          <div class="mq-q">在比赛关键分，你更倾向于……</div>
+          <div class="mq-opt sel" onclick="selOpt(this)"><span>🔥</span>主动进攻，打乱对手节奏</div>
+          <div class="mq-opt" onclick="selOpt(this)"><span>🛡️</span>稳健控球，等待对方失误</div>
+          <div class="mq-opt" onclick="selOpt(this)"><span>🌊</span>突然变线，出奇制胜</div>
+          <div class="mq-opt" onclick="selOpt(this)"><span>⚡</span>执行最熟悉的套路</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ══ LEVELS ══ -->
+<div class="level-section" id="levels">
+  <div class="level-inner">
+    <div class="reveal" style="text-align:center;margin-bottom:0">
+      <div class="s-tag">LEVEL SYSTEM · 等级制度</div>
+      <div class="s-title">从白带到宗师<br>每一分都是证明</div>
+      <p class="s-sub" style="margin:12px auto 0;text-align:center">开球网积分直接换算等级。1400分=40级，1800分=80级，2000分封顶百级宗师。</p>
+    </div>
+    <div class="level-grid reveal">
+      <div class="tier-show" style="--tc:rgba(154,170,187,.08);--tc-text:#9AAABB">
+        <span class="tier-badge">🏓</span>
+        <div class="tier-name-txt">初学·白带</div>
+        <div class="tier-lv-range">1 — 20 级</div>
+        <div class="tier-score-range">开球网 1000–1200 分</div>
+        <div class="tier-bar-wrap"><div class="tier-bar-f" style="width:20%;background:#9AAABB"></div></div>
+      </div>
+      <div class="tier-show" style="--tc:rgba(200,120,75,.08);--tc-text:#C8784B">
+        <span class="tier-badge">🥉</span>
+        <div class="tier-name-txt">进阶·铜牌</div>
+        <div class="tier-lv-range">21 — 40 级</div>
+        <div class="tier-score-range">开球网 1200–1400 分</div>
+        <div class="tier-bar-wrap"><div class="tier-bar-f" style="width:40%;background:#C8784B"></div></div>
+      </div>
+      <div class="tier-show" style="--tc:rgba(154,170,187,.08);--tc-text:#B0C4D8">
+        <span class="tier-badge">🥈</span>
+        <div class="tier-name-txt">中坚·银牌</div>
+        <div class="tier-lv-range">41 — 60 级</div>
+        <div class="tier-score-range">开球网 1400–1600 分</div>
+        <div class="tier-bar-wrap"><div class="tier-bar-f" style="width:60%;background:#B0C4D8"></div></div>
+      </div>
+      <div class="tier-show" style="--tc:rgba(200,168,75,.08);--tc-text:#C8A84B">
+        <span class="tier-badge">🥇</span>
+        <div class="tier-name-txt">精英·金牌</div>
+        <div class="tier-lv-range">61 — 80 级</div>
+        <div class="tier-score-range">开球网 1600–1800 分</div>
+        <div class="tier-bar-wrap"><div class="tier-bar-f" style="width:80%;background:#C8A84B"></div></div>
+      </div>
+      <div class="tier-show" style="--tc:rgba(192,48,176,.08);--tc-text:#C030B0">
+        <span class="tier-badge">👑</span>
+        <div class="tier-name-txt">宗师·王者</div>
+        <div class="tier-lv-range">81 — 100 级</div>
+        <div class="tier-score-range">开球网 1800–2000 分</div>
+        <div class="tier-bar-wrap"><div class="tier-bar-f" style="width:100%;background:#C030B0"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ══ TESTIMONIALS ══ -->
+<section id="community">
+  <div class="reveal" style="text-align:center">
+    <div class="s-tag">COMMUNITY · 球友之声</div>
+    <div class="s-title">他们已经找到了<br>自己的乒乓命格</div>
+  </div>
+  <div class="testi-grid reveal">
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <div class="testi-text">「五行测定太准了！测出来是火型，和我平时打球的感觉完全吻合。正手进攻是我最强的武器，以后找到组织了！」</div>
+      <div class="testi-author">
+        <div class="ta-avatar" style="background:rgba(192,57,43,.2);color:#C0392B">张</div>
+        <div><div class="ta-name">张明远</div><div class="ta-meta">🔥 火型 · Lv62 · 北京</div></div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <div class="testi-text">「开球网绑定真的很方便，积分更新后等级自动变了，整个升级的感觉很爽。而且按等级配对赛事，打起来更有竞争性。」</div>
+      <div class="testi-author">
+        <div class="ta-avatar" style="background:rgba(200,168,75,.2);color:#C8A84B">王</div>
+        <div><div class="ta-name">王浩然</div><div class="ta-meta">⚡ 金型 · Lv71 · 深圳</div></div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★☆</div>
+      <div class="testi-text">「通过「找球友」功能认识了几个水型的朋友，大家风格相近，聊得来，约球也方便。社区氛围很好，没有那种剑拔弩张的感觉。」</div>
+      <div class="testi-author">
+        <div class="ta-avatar" style="background:rgba(42,110,170,.2);color:#2A6EAA">李</div>
+        <div><div class="ta-name">李思雨</div><div class="ta-meta">🌊 水型 · Lv58 · 上海</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CTA ══ -->
+<div style="padding:0 40px 0;max-width:1200px;margin:0 auto;" id="cta">
+  <div class="cta-banner reveal">
+    <div class="cta-title">现在就找到你的乒乓命格</div>
+    <div class="cta-sub">免费注册 · 五行测定 · 开球网积分对接 · 全程免费</div>
+    <div class="cta-input-row">
+      <input class="cta-input" placeholder="输入你的邮箱" id="cta-email">
+      <button class="btn-cta" onclick="ctaJoin()">立即注册 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-logo">乒乓之家</div>
+        <div class="footer-desc">中国最专业的乒乓球爱好者社区平台。五行风格体系、百级段位制度、开球网积分对接，让每一位球友都找到属于自己的位置。</div>
+        <div class="footer-social">
+          <div class="social-btn">💬</div>
+          <div class="social-btn">📱</div>
+          <div class="social-btn">🎬</div>
+        </div>
+      </div>
+      <div>
+        <h4>平台功能</h4>
+        <div class="footer-links">
+          <div class="footer-link">五行风格测定</div>
+          <div class="footer-link">等级与积分</div>
+          <div class="footer-link">赛事大厅</div>
+          <div class="footer-link">找球友</div>
+          <div class="footer-link">装备库</div>
+        </div>
+      </div>
+      <div>
+        <h4>社区</h4>
+        <div class="footer-links">
+          <div class="footer-link">动态广场</div>
+          <div class="footer-link">技术文章</div>
+          <div class="footer-link">视频集锦</div>
+          <div class="footer-link">场馆地图</div>
+          <div class="footer-link">教练资源</div>
+        </div>
+      </div>
+      <div>
+        <h4>关于</h4>
+        <div class="footer-links">
+          <div class="footer-link">关于我们</div>
+          <div class="footer-link">联系我们</div>
+          <div class="footer-link">隐私政策</div>
+          <div class="footer-link">用户协议</div>
+          <div class="footer-link">加入我们</div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bot">
+      <div>© 2025 乒乓之家 · 保留所有权利</div>
+      <div class="five-dots">
+        <div class="five-dot" style="background:#C8A84B"></div>
+        <div class="five-dot" style="background:#C0392B"></div>
+        <div class="five-dot" style="background:#4A7C59"></div>
+        <div class="five-dot" style="background:#2A6EAA"></div>
+        <div class="five-dot" style="background:#A0522D"></div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<div style="position:fixed;bottom:24px;right:24px;background:rgba(14,14,16,.95);border:1px solid rgba(200,168,75,.3);border-radius:14px;padding:11px 16px;font-size:13px;color:var(--text2);z-index:999;backdrop-filter:blur(12px);display:flex;align-items:center;gap:8px;transform:translateY(80px);opacity:0;transition:all .4s cubic-bezier(.34,1.56,.64,1)" id="toast">
+  <span id="t-icon"></span><span id="t-msg"></span>
+</div>
+
+<script>
+/* NAV scroll */
+window.addEventListener('scroll',()=>{
+  document.getElementById('nav').classList.toggle('scrolled',scrollY>40);
+  document.querySelectorAll('.reveal').forEach(el=>{
+    if(el.getBoundingClientRect().top<window.innerHeight*.88) el.classList.add('visible');
+  });
+});
+setTimeout(()=>document.querySelectorAll('.reveal').forEach(el=>{
+  if(el.getBoundingClientRect().top<window.innerHeight*.88) el.classList.add('visible');
+}),100);
+
+/* Count-up animation */
+function countUp(id,target,suffix=''){
+  let n=0,step=target/60;
+  const el=document.getElementById(id);
+  const t=setInterval(()=>{
+    n=Math.min(n+step,target);
+    el.textContent=Math.floor(n).toLocaleString()+suffix;
+    if(n>=target) clearInterval(t);
+  },24);
+}
+setTimeout(()=>{
+  countUp('cnt-users',12480,'＋');
+  countUp('cnt-matches',380,'＋');
+  countUp('cnt-cities',42,'');
+  countUp('cnt-venues',260,'＋');
+},400);
+
+/* Step visuals */
+const vcLabels=['五行测定','等级对接','赛事报名'];
+const vcBodies=[
+  `<div class="mq-q">在比赛关键分，你更倾向于……</div>
+   <div class="mq-opt sel" onclick="selOpt(this)"><span>🔥</span>主动进攻，打乱对手节奏</div>
+   <div class="mq-opt" onclick="selOpt(this)"><span>🛡️</span>稳健控球，等待对方失误</div>
+   <div class="mq-opt" onclick="selOpt(this)"><span>🌊</span>突然变线，出奇制胜</div>
+   <div class="mq-opt" onclick="selOpt(this)"><span>⚡</span>执行最熟悉的套路</div>`,
+  `<div class="mini-level">
+    <div style="font-size:12px;color:var(--text3);margin-bottom:16px">开球网积分 → 乒乓之家等级</div>
+    <div class="ml-row"><div class="ml-label">进攻力</div><div class="ml-track"><div class="ml-fill" style="width:85%"></div></div><div class="ml-val">85</div></div>
+    <div class="ml-row"><div class="ml-label">稳定性</div><div class="ml-track"><div class="ml-fill" style="width:62%"></div></div><div class="ml-val">62</div></div>
+    <div class="ml-row"><div class="ml-label">旋转感</div><div class="ml-track"><div class="ml-fill" style="width:70%"></div></div><div class="ml-val">70</div></div>
+    <div class="mini-lv-badge"><div><div class="mlb-num">68</div><div class="mlb-label">级</div></div><div style="width:1px;height:36px;background:var(--bd)"></div><div><div style="font-family:'DM Mono',monospace;font-size:18px;color:var(--jin)">1680</div><div class="mlb-label">开球网分</div></div></div>
+   </div>`,
+  `<div style="font-size:12px;color:var(--text3);margin-bottom:14px">推荐赛事 · 适合你的等级</div>
+   <div style="background:var(--bg3);border:1px solid var(--bd);border-radius:10px;padding:12px;margin-bottom:8px">
+     <div style="font-size:13px;font-weight:500;margin-bottom:4px">2025春季城市公开赛</div>
+     <div style="font-size:11px;color:var(--text3)">单败淘汰 · 40–80级 · 北京 · 报名中</div>
+     <div style="margin-top:8px;display:flex;gap:6px">
+       <span style="background:rgba(192,57,43,.15);color:#C0392B;padding:2px 8px;border-radius:6px;font-size:10px">🔥 火型参赛中</span>
+       <span style="background:rgba(200,168,75,.12);color:var(--jin);padding:2px 8px;border-radius:6px;font-size:10px">¥2,000奖金</span>
+     </div>
+   </div>
+   <div style="background:var(--bg3);border:1px solid var(--bd);border-radius:10px;padding:12px">
+     <div style="font-size:13px;font-weight:500;margin-bottom:4px">火型专属擂台赛</div>
+     <div style="font-size:11px;color:var(--text3)">单循环 · 60–80级 · 上海 · 即将开始</div>
+   </div>`
+];
+function setStep(i,el){
+  document.querySelectorAll('.hiw-step').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('vc-label').textContent=vcLabels[i];
+  document.getElementById('vc-body').innerHTML=vcBodies[i];
+}
+function selOpt(el){
+  document.querySelectorAll('.mq-opt').forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+/* CTA */
+function ctaJoin(){
+  const v=document.getElementById('cta-email').value.trim();
+  if(!v){toast('⚠️','请输入邮箱地址');return;}
+  toast('🎉','注册成功！欢迎加入乒乓之家，请查收确认邮件。');
+  document.getElementById('cta-email').value='';
+}
+
+/* Toast */
+function toast(icon,msg){
+  const t=document.getElementById('toast');
+  document.getElementById('t-icon').textContent=icon;
+  document.getElementById('t-msg').textContent=msg;
+  t.style.transform='none';t.style.opacity='1';
+  clearTimeout(t._t);t._t=setTimeout(()=>{t.style.transform='translateY(80px)';t.style.opacity='0';},3000);
+}
+</script>
+
+<script>
+(function(){
+  var links = document.querySelectorAll('#g-nav .gn');
+  links.forEach(function(a){
+    if(a.textContent.indexOf('gnav-home') >= 0 || a.id === 'gnav-home'){
+      a.style.color = '#C8A84B';
+      a.style.borderBottom = '2px solid #C8A84B';
+    }
+  });
+  if('gnav-home' === 'gnav-home'){
+    var logo = document.getElementById('gnav-home');
+    if(logo) logo.style.opacity = '1';
+  }
+})();
+</script>
+</body>
+</html>

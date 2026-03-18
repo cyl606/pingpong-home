@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>乒乓之家 · 等级系统</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>html{scroll-padding-top:96px}
+:root {
+  --jin: #C8A84B; --jin-l: #F5EDD0; --jin-d: #7A601A;
+  --mu:  #4A7C59; --mu-l:  #D4EAD8; --mu-d:  #1E4A2B;
+  --shui:#2A6EAA; --shui-l:#C8D8EC; --shui-d:#0A2A4A;
+  --huo: #C0392B; --huo-l: #FAD7D2; --huo-d: #7A1A10;
+  --tu:  #A0522D; --tu-l:  #EDD5C0; --tu-d:  #5C2A10;
+  --bg:  #0C0C0E; --bg2: #141418; --bg3: #1C1C22; --bg4: #242430;
+  --text:#EDE8DF; --text2:#A8A49C; --text3:#6B6860;
+  --border: rgba(255,255,255,0.07);
+  --gold: #C8A84B; --silver: #9AAABB; --bronze: #C8784B;
+  --r: 12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 70% 40% at 50% 0%, rgba(200,168,75,0.05) 0%,transparent 60%),
+  radial-gradient(ellipse 40% 50% at 0% 100%, rgba(26,58,92,0.07) 0%,transparent 60%);
+  pointer-events:none;z-index:0;}
+
+/* NAV */
+nav{display:flex;align-items:center;justify-content:space-between;padding:18px 40px;border-bottom:1px solid var(--border);position:relative;z-index:10;}
+.logo{font-family:'Noto Serif SC',serif;font-size:20px;font-weight:700;letter-spacing:.05em;
+  background:linear-gradient(135deg,var(--jin) 0%,#E8C878 50%,var(--jin) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.nav-tabs{display:flex;gap:4px;}
+.nav-tab{padding:7px 18px;border-radius:20px;font-size:13px;color:var(--text2);cursor:pointer;border:1px solid transparent;transition:all .2s;}
+.nav-tab:hover{color:var(--text);border-color:var(--border);}
+.nav-tab.active{background:var(--bg3);color:var(--text);border-color:var(--border);}
+
+/* LAYOUT */
+.main{position:relative;z-index:1;}
+.section{padding:40px;max-width:1200px;margin:0 auto;}
+
+/* ── HERO BAND ── */
+.hero{
+  padding:56px 40px 48px;
+  background:linear-gradient(180deg,rgba(200,168,75,0.06) 0%,transparent 100%);
+  border-bottom:1px solid var(--border);
+  text-align:center;
+}
+.hero-tag{font-size:11px;letter-spacing:.25em;color:var(--jin);margin-bottom:14px;}
+.hero h1{font-family:'Noto Serif SC',serif;font-size:40px;font-weight:600;line-height:1.2;margin-bottom:12px;}
+.hero h1 span{color:var(--jin);}
+.hero p{font-size:15px;color:var(--text2);line-height:1.8;max-width:560px;margin:0 auto 32px;}
+
+/* SCORE CONVERTER */
+.converter-card{
+  max-width:520px;margin:0 auto;
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:18px;padding:28px 32px;
+}
+.conv-label{font-size:12px;color:var(--text3);letter-spacing:.08em;margin-bottom:8px;}
+.slider-wrap{position:relative;margin-bottom:10px;}
+input[type=range]{
+  width:100%;height:4px;
+  -webkit-appearance:none;appearance:none;
+  background:linear-gradient(90deg,var(--jin) 0%,var(--jin) var(--pct,30%),var(--bg4) var(--pct,30%),var(--bg4) 100%);
+  border-radius:2px;outline:none;cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:20px;height:20px;
+  background:var(--bg);border:2px solid var(--jin);
+  border-radius:50%;cursor:pointer;
+  box-shadow:0 0 0 4px rgba(200,168,75,.15);
+  transition:box-shadow .2s;
+}
+input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 0 7px rgba(200,168,75,.2);}
+.score-marks{display:flex;justify-content:space-between;font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:6px;}
+.conv-result{
+  margin-top:20px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--bg3);border-radius:12px;padding:18px 22px;
+  border:1px solid var(--border);
+}
+.conv-score{font-family:'DM Mono',monospace;}
+.conv-score .num{font-size:32px;font-weight:500;color:var(--jin);}
+.conv-score .unit{font-size:13px;color:var(--text3);margin-left:4px;}
+.conv-arrow{color:var(--text3);font-size:20px;}
+.conv-level{}
+.conv-level .lv-num{
+  font-family:'DM Mono',monospace;font-size:32px;font-weight:500;
+  transition:color .3s;
+}
+.conv-level .lv-label{font-size:13px;color:var(--text2);margin-top:2px;}
+.conv-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 14px;border-radius:20px;
+  font-size:12px;font-weight:500;
+  margin-top:12px;
+  transition:all .3s;
+}
+
+/* TIER TABLE */
+.tier-grid{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:12px;
+  margin-top:40px;
+}
+.tier-card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:14px;padding:20px 16px;
+  cursor:pointer;transition:all .25s;
+  position:relative;overflow:hidden;
+}
+.tier-card::after{
+  content:'';position:absolute;inset:0;
+  background:var(--tc);opacity:0;transition:opacity .25s;border-radius:14px;
+}
+.tier-card:hover{border-color:var(--tc-border);transform:translateY(-3px);}
+.tier-card:hover::after{opacity:.06;}
+.tier-icon{font-size:28px;margin-bottom:10px;display:block;}
+.tier-name{font-family:'Noto Serif SC',serif;font-size:16px;font-weight:600;margin-bottom:4px;}
+.tier-range{font-family:'DM Mono',monospace;font-size:12px;color:var(--text2);margin-bottom:8px;}
+.tier-score{font-size:11px;color:var(--text3);}
+.tier-bar{height:3px;border-radius:2px;margin-top:12px;background:var(--bg4);}
+.tier-fill{height:100%;border-radius:2px;background:var(--tc);}
+
+/* LEVEL RULER */
+.ruler-section{margin-top:48px;}
+.ruler-section h2{font-family:'Noto Serif SC',serif;font-size:22px;margin-bottom:6px;}
+.ruler-section p{font-size:14px;color:var(--text2);margin-bottom:24px;}
+.ruler-wrap{overflow-x:auto;padding-bottom:8px;}
+.ruler{display:flex;gap:3px;width:max-content;padding:4px 0 20px;}
+.ruler-seg{
+  width:22px;height:52px;border-radius:4px;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  padding-bottom:4px;cursor:pointer;
+  transition:transform .15s;position:relative;
+}
+.ruler-seg:hover{transform:scaleY(1.15);transform-origin:bottom;}
+.ruler-seg .seg-lv{font-size:8px;color:var(--text3);font-family:'DM Mono',monospace;}
+.ruler-label{
+  position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);
+  font-size:9px;color:var(--text3);white-space:nowrap;font-family:'DM Mono',monospace;
+}
+.ruler-seg.marker .ruler-label{color:var(--jin);font-weight:500;}
+
+/* BIND CARD */
+.bind-section{
+  display:grid;grid-template-columns:1fr 1fr;gap:24px;
+  margin-top:48px;
+}
+.bind-card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:18px;padding:28px;
+}
+.bind-card h3{font-family:'Noto Serif SC',serif;font-size:18px;margin-bottom:8px;}
+.bind-card p{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:20px;}
+.bind-input-row{display:flex;gap:10px;}
+.bind-input{
+  flex:1;padding:11px 15px;
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:10px;color:var(--text);font-size:14px;font-family:inherit;
+  outline:none;transition:border-color .2s;
+}
+.bind-input:focus{border-color:var(--jin);}
+.btn-bind{
+  padding:11px 22px;
+  background:linear-gradient(135deg,var(--jin-d),var(--jin));
+  border:none;border-radius:10px;
+  color:#1A1200;font-size:14px;font-weight:600;
+  font-family:inherit;cursor:pointer;
+  white-space:nowrap;transition:opacity .2s;
+}
+.btn-bind:hover{opacity:.85;}
+.bind-result{
+  margin-top:16px;display:none;
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:12px;padding:16px 18px;
+}
+.bind-result.show{display:flex;align-items:center;gap:14px;}
+.br-avatar{
+  width:44px;height:44px;border-radius:50%;
+  background:linear-gradient(135deg,var(--jin-d),var(--jin));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Noto Serif SC',serif;font-size:16px;font-weight:600;color:#1A1200;
+  flex-shrink:0;
+}
+.br-info{}
+.br-name{font-size:15px;font-weight:500;}
+.br-meta{font-size:12px;color:var(--text2);margin-top:3px;}
+.br-score{
+  margin-left:auto;text-align:right;
+}
+.br-score .sc{font-family:'DM Mono',monospace;font-size:22px;color:var(--jin);}
+.br-score .sc-label{font-size:11px;color:var(--text3);}
+
+/* self-rate */
+.self-rate-opts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px;}
+.sr-opt{
+  padding:12px 10px;
+  background:var(--bg3);border:1.5px solid var(--border);
+  border-radius:10px;text-align:center;cursor:pointer;
+  transition:all .2s;
+}
+.sr-opt:hover{border-color:var(--text3);}
+.sr-opt.sel{border-color:var(--jin);background:rgba(200,168,75,.08);}
+.sr-lv{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;color:var(--jin);}
+.sr-name{font-size:11px;color:var(--text2);margin-top:4px;}
+
+/* ACHIEVEMENTS */
+.ach-grid{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;}
+.ach{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 14px;
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:20px;font-size:13px;color:var(--text2);
+  transition:all .2s;
+}
+.ach:hover{border-color:var(--text3);color:var(--text);}
+.ach.unlocked{border-color:rgba(200,168,75,.4);color:var(--jin);}
+.ach-icon{font-size:15px;}
+
+/* HISTORY CHART */
+.hist-card{
+  margin-top:48px;
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:18px;padding:28px;
+}
+.hist-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+.hist-header h3{font-family:'Noto Serif SC',serif;font-size:18px;}
+.hist-range-tabs{display:flex;gap:4px;}
+.range-tab{padding:5px 14px;border-radius:20px;font-size:12px;color:var(--text2);cursor:pointer;border:1px solid transparent;transition:all .2s;}
+.range-tab.active{background:var(--bg3);color:var(--text);border-color:var(--border);}
+svg.chart{width:100%;overflow:visible;}
+
+/* NOTIFICATION */
+.notif{
+  position:fixed;top:80px;right:32px;
+  background:var(--bg3);border:1px solid rgba(200,168,75,.4);
+  border-radius:14px;padding:14px 20px;
+  display:flex;align-items:center;gap:12px;
+  font-size:14px;color:var(--text);
+  transform:translateX(120%);transition:transform .4s cubic-bezier(.34,1.56,.64,1);
+  z-index:100;max-width:320px;
+}
+.notif.show{transform:none;}
+.notif-icon{font-size:20px;}
+
+@media(max-width:768px){
+  .tier-grid{grid-template-columns:repeat(2,1fr);}
+  .bind-section{grid-template-columns:1fr;}
+  nav{padding:14px 20px;}
+  .section{padding:24px 20px;}
+  .hero{padding:36px 20px;}
+}
+</style>
+  <script src="supabase.js"></script>
+
+<script>
+// 等 Supabase 就绪后加载用户真实数据
+document.addEventListener('supabase-ready', async () => {
+  const user = Auth.user;
+  if (!user) return;
+
+  try {
+    const profile = await API.getProfile(user.id);
+
+    // 更新换算器显示真实等级
+    if (profile.kaiqiu_score) {
+      document.getElementById('score-slider').value = profile.kaiqiu_score;
+      updateConverter(profile.kaiqiu_score);
+    } else if (profile.level) {
+      const approxScore = 1000 + profile.level * 10;
+      document.getElementById('score-slider').value = approxScore;
+      updateConverter(approxScore);
+    }
+
+    // 显示用户昵称
+    document.getElementById('hero-lv-display').textContent =
+      `${profile.nickname || '球友'} · 第 ${profile.level || 1} 级`;
+
+    // 加载等级历史
+    if (profile.id) {
+      const history = await API.getLevelHistory(profile.id);
+      if (history.length > 0) renderRealChart(history);
+    }
+
+    // 如果已绑定开球网，显示绑定状态
+    if (profile.kaiqiu_id) {
+      const inp = document.getElementById('kq-input');
+      if (inp) {
+        inp.value = profile.kaiqiu_id;
+        inp.disabled = true;
+        inp.style.opacity = '.6';
+        inp.placeholder = '已绑定：' + profile.kaiqiu_id;
+      }
+      const result = document.getElementById('bind-result');
+      if (result) {
+        document.getElementById('br-av').textContent  = profile.nickname?.[0] || '球';
+        document.getElementById('br-name').textContent = profile.nickname || user.email;
+        document.getElementById('br-sc').textContent  = profile.kaiqiu_score || '-';
+        document.getElementById('br-lv-show').textContent = '第 ' + (profile.level || 1) + ' 级';
+        const t = profile.kaiqiu_synced_at
+          ? new Date(profile.kaiqiu_synced_at).toLocaleDateString('zh-CN')
+          : '未同步';
+        document.getElementById('br-meta').textContent = `开球网 ID: ${profile.kaiqiu_id} · 同步于 ${t}`;
+        result.classList.add('show');
+      }
+    }
+  } catch(e) {
+    console.warn('加载用户数据失败:', e.message);
+  }
+});
+
+// 渲染真实等级历史曲线
+function renderRealChart(history) {
+  const svg = document.getElementById('chart-svg');
+  if (!history.length || !svg) return;
+
+  const pts = history.slice(0,18).reverse().map(h => h.level);
+  const W=700, H=140, pad=30;
+  const minV=Math.min(...pts)-3, maxV=Math.max(...pts)+3;
+  const xs = pts.map((_,i) => pad + i*(W-2*pad)/(pts.length-1));
+  const ys = pts.map(v => H-pad-(v-minV)/(maxV-minV)*(H-2*pad));
+
+  let line=`M${xs[0]} ${ys[0]}`;
+  for(let i=1;i<pts.length;i++){
+    const cpx=(xs[i-1]+xs[i])/2;
+    line+=` C${cpx} ${ys[i-1]} ${cpx} ${ys[i]} ${xs[i]} ${ys[i]}`;
+  }
+  let area = `M${xs[0]} ${H-pad} L${xs[0]} ${ys[0]}` + line.slice(line.indexOf(' ')) + ` L${xs[pts.length-1]} ${H-pad} Z`;
+
+  svg.innerHTML = `
+    <defs>
+      <linearGradient id="cg2" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#C8A84B" stop-opacity=".3"/>
+        <stop offset="100%" stop-color="#C8A84B" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <path d="${area}" fill="url(#cg2)"/>
+    <path d="${line}" fill="none" stroke="#C8A84B" stroke-width="2" stroke-linecap="round"/>
+    ${xs.map((x,i)=>`<circle cx="${x}" cy="${ys[i]}" r="3" fill="#C8A84B" opacity=".7"/>`).join('')}
+    ${[0,Math.floor(pts.length/2),pts.length-1].map(i=>`
+      <text x="${xs[i]}" y="${ys[i]-10}" text-anchor="middle"
+        style="font-size:10px;fill:#A8A49C;font-family:'DM Mono',monospace">${pts[i]}级</text>
+    `).join('')}
+  `;
+}
+</script>
+
+</head>
+<body>
+<!-- GLOBAL NAV --><div id="g-nav" style="position:fixed;top:0;left:0;right:0;z-index:9999;background:rgba(8,8,8,0.96);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;height:48px;padding:0 24px;gap:0;font-family:Noto Sans SC,sans-serif"><a href="pingpong_home.html" id="gnav-home" style="font-family:Noto Serif SC,serif;font-size:17px;font-weight:700;letter-spacing:.05em;background:linear-gradient(135deg,#C8A84B,#E8C878,#C8A84B);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none;padding-right:20px;border-right:1px solid rgba(255,255,255,0.08);margin-right:4px;white-space:nowrap">乒乓之家</a><a href="pingpong_register.html" class="gn" style="padding:0 14px;font-size:12px;color:rgba(200,200,200,0.6);text-decoration:none;height:48px;display:flex;align-items:center;transition:color .2s;white-space:nowrap">注册/登录</a><a href="pingpong_level.html" class="gn" style="padding:0 14px;font-size:12px;color:rgba(200,200,200,0.6);text-decoration:none;height:48px;display:flex;align-items:center;transition:color .2s;white-space:nowrap">等级系统</a><a href="pingpong_tournament.html" class="gn" style="padding:0 14px;font-size:12px;color:rgba(200,200,200,0.6);text-decoration:none;height:48px;display:flex;align-items:center;transition:color .2s;white-space:nowrap">赛事大厅</a><a href="pingpong_community.html" class="gn" style="padding:0 14px;font-size:12px;color:rgba(200,200,200,0.6);text-decoration:none;height:48px;display:flex;align-items:center;transition:color .2s;white-space:nowrap">社区</a><a href="pingpong_tech.html" class="gn" style="padding:0 14px;font-size:12px;color:rgba(200,200,200,0.6);text-decoration:none;height:48px;display:flex;align-items:center;transition:color .2s;white-space:nowrap">技术架构</a><div style="flex:1"></div><a href="pingpong_register.html" style="padding:7px 18px;background:linear-gradient(135deg,#7A601A,#C8A84B);border-radius:20px;font-size:12px;font-weight:600;color:#1A1000;text-decoration:none;white-space:nowrap">免费注册</a></div><style>#g-nav .gn:hover{color:#C8A84B!important}body{padding-top:48px!important}</style>
+<nav>
+  <div class="logo">乒乓之家</div>
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="showTab(0)">等级总览</div>
+    <div class="nav-tab" onclick="showTab(1)">绑定开球网</div>
+    <div class="nav-tab" onclick="showTab(2)">成就系统</div>
+  </div>
+</nav>
+
+<div class="main">
+
+<!-- ── TAB 0: 等级总览 ── -->
+<div id="tab0">
+<div class="hero">
+  <div class="hero-tag">LEVEL SYSTEM · 等级制度</div>
+  <h1>你现在是<br><span id="hero-lv-display">第 40 级</span></h1>
+  <p>乒乓之家的等级与开球网积分直接挂钩，<br>每10分对应约0.25个级别，忠实反映你的真实实力。</p>
+
+  <div class="converter-card">
+    <div class="conv-label">开球网积分 → 乒乓之家等级</div>
+    <div class="slider-wrap">
+      <input type="range" id="score-slider" min="1000" max="2200" value="1400" step="10"
+             oninput="updateConverter(this.value)">
+      <div class="score-marks">
+        <span>1000</span><span>1200</span><span>1400</span><span>1600</span><span>1800</span><span>2000</span><span>2200</span>
+      </div>
+    </div>
+    <div class="conv-result">
+      <div class="conv-score">
+        <span class="num" id="conv-score-num">1400</span>
+        <span class="unit">分</span>
+      </div>
+      <div class="conv-arrow">→</div>
+      <div class="conv-level">
+        <div class="lv-num" id="conv-lv-num">40</div>
+        <div class="lv-label">级</div>
+      </div>
+      <div>
+        <div class="conv-badge" id="conv-badge">段位名</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <!-- TIER CARDS -->
+  <div class="tier-grid" id="tier-grid"></div>
+
+  <!-- RULER -->
+  <div class="ruler-section">
+    <h2>完整等级尺</h2>
+    <p>1级～100级全览，鼠标悬停查看对应分数区间</p>
+    <div class="ruler-wrap">
+      <div class="ruler" id="ruler"></div>
+    </div>
+  </div>
+
+  <!-- HISTORY CHART -->
+  <div class="hist-card">
+    <div class="hist-header">
+      <h3>等级变化曲线</h3>
+      <div class="hist-range-tabs">
+        <div class="range-tab active">3个月</div>
+        <div class="range-tab">6个月</div>
+        <div class="range-tab">1年</div>
+      </div>
+    </div>
+    <svg class="chart" id="chart-svg" height="160" viewBox="0 0 700 160"></svg>
+  </div>
+</div>
+</div><!-- tab0 -->
+
+<!-- ── TAB 1: 绑定开球网 ── -->
+<div id="tab1" style="display:none">
+<div class="section" style="max-width:800px;">
+  <div style="margin-bottom:32px;">
+    <div style="font-size:11px;letter-spacing:.2em;color:var(--jin);margin-bottom:10px;">STEP 1 OF 2</div>
+    <h2 style="font-family:'Noto Serif SC',serif;font-size:28px;margin-bottom:8px;">绑定你的开球网账号</h2>
+    <p style="font-size:14px;color:var(--text2);line-height:1.7;">绑定后，乒乓之家将自动同步你的开球网分数，实时更新等级。无开球网账号的用户可通过自评通道入档。</p>
+  </div>
+
+  <div class="bind-section">
+    <div class="bind-card">
+      <h3>🔗 绑定开球网 ID</h3>
+      <p>输入你的开球网注册用户名或 ID，我们将拉取你的最新积分，自动换算为乒乓之家等级。</p>
+      <div class="bind-input-row">
+        <input class="bind-input" id="kq-input" placeholder="开球网用户名 / ID">
+        <button class="btn-bind" onclick="bindKaiqiu()">验证绑定</button>
+      </div>
+      <div class="bind-result" id="bind-result">
+        <div class="br-avatar" id="br-av">张</div>
+        <div class="br-info">
+          <div class="br-name" id="br-name">张小龙</div>
+          <div class="br-meta" id="br-meta">开球网 ID: kq_99102 · 已认证</div>
+        </div>
+        <div class="br-score">
+          <div class="sc" id="br-sc">1680</div>
+          <div class="sc-label">开球网积分</div>
+          <div style="font-size:12px;color:var(--jin);margin-top:2px;" id="br-lv-show">≈ 第 68 级</div>
+        </div>
+      </div>
+      <div style="margin-top:16px;font-size:12px;color:var(--text3);line-height:1.6;">
+        ✦ 绑定后每周自动同步一次<br>
+        ✦ 参加本站赛事后即时更新
+      </div>
+    </div>
+
+    <div class="bind-card">
+      <h3>✏️ 自评通道</h3>
+      <p>暂未注册开球网？根据你的实际水平选择起始段位，后续可随时更新或绑定正式账号。</p>
+      <div class="self-rate-opts" id="self-opts"></div>
+      <button class="btn-bind" style="width:100%;margin-top:16px;opacity:.5" id="sr-confirm" onclick="confirmSelfRate()">确认自评等级</button>
+    </div>
+  </div>
+
+  <div style="margin-top:32px;background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:24px;">
+    <h3 style="font-family:'Noto Serif SC',serif;font-size:16px;margin-bottom:14px;">开球网积分换算公式</h3>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+      <div style="background:var(--bg3);border-radius:10px;padding:14px;text-align:center;">
+        <div style="font-family:'DM Mono',monospace;font-size:20px;color:var(--jin)">1000</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px;">分 = 第0级</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:10px;padding:14px;text-align:center;">
+        <div style="font-family:'DM Mono',monospace;font-size:20px;color:var(--jin)">1400</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px;">分 = 第40级</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:10px;padding:14px;text-align:center;">
+        <div style="font-family:'DM Mono',monospace;font-size:20px;color:var(--jin)">1800</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px;">分 = 第80级</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:10px;padding:14px;text-align:center;">
+        <div style="font-family:'DM Mono',monospace;font-size:20px;color:var(--jin)">2000</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px;">分 = 第100级</div>
+      </div>
+    </div>
+    <div style="margin-top:14px;font-size:12px;color:var(--text3);line-height:1.8;">
+      换算公式：<span style="font-family:'DM Mono',monospace;color:var(--jin)">等级 = (开球网分数 − 1000) ÷ 10</span>　上限100级，下限1级<br>
+      即每10分对应1级。1400分=40级，1800分=80级，2000分封顶100级（宗师）。
+    </div>
+  </div>
+</div>
+</div><!-- tab1 -->
+
+<!-- ── TAB 2: 成就系统 ── -->
+<div id="tab2" style="display:none">
+<div class="section" style="max-width:900px;">
+  <div style="margin-bottom:32px;">
+    <div style="font-size:11px;letter-spacing:.2em;color:var(--jin);margin-bottom:10px;">ACHIEVEMENT SYSTEM</div>
+    <h2 style="font-family:'Noto Serif SC',serif;font-size:28px;margin-bottom:8px;">成就与里程碑</h2>
+    <p style="font-size:14px;color:var(--text2);">解锁成就可获得专属徽章，展示在个人主页。</p>
+  </div>
+
+  <div id="ach-sections"></div>
+</div>
+</div>
+
+</div><!-- main -->
+
+<!-- NOTIFICATION -->
+<div class="notif" id="notif">
+  <div class="notif-icon" id="notif-icon">🎉</div>
+  <div id="notif-msg">成功！</div>
+</div>
+
+<script>
+/* ────── DATA ────── */
+const tiers = [
+  { name:"初学·白带", range:[1,20],  score:[1000,1200], icon:"🏓", color:"#9AAABB", colorB:"rgba(154,170,187,.12)" },
+  { name:"进阶·铜牌", range:[21,40], score:[1200,1400], icon:"🥉", color:"#C8784B", colorB:"rgba(200,120,75,.12)" },
+  { name:"中坚·银牌", range:[41,60], score:[1400,1600], icon:"🥈", color:"#9AAABB", colorB:"rgba(154,170,187,.12)" },
+  { name:"精英·金牌", range:[61,80], score:[1600,1800], icon:"🥇", color:"#C8A84B", colorB:"rgba(200,168,75,.12)" },
+  { name:"宗师·王者", range:[81,100],score:[1800,2000], icon:"👑", color:"#C030B0", colorB:"rgba(192,48,176,.12)" },
+];
+
+const tierColors = ["#9AAABB","#C8784B","#9AAABB","#C8A84B","#C030B0"];
+
+const achievements = [
+  { cat:"等级里程碑", list:[
+    { icon:"🌱", name:"初出茅庐",  desc:"完成注册并确定等级",        done:true  },
+    { icon:"🥉", name:"铜牌战士",  desc:"等级达到第21级",            done:true  },
+    { icon:"🥈", name:"银牌精英",  desc:"等级达到第41级",            done:false },
+    { icon:"🥇", name:"金牌强者",  desc:"等级达到第61级",            done:false },
+    { icon:"👑", name:"宗师降临",  desc:"等级达到第81级",            done:false },
+    { icon:"💎", name:"百级封神",  desc:"等级达到第100级（传说）",   done:false },
+  ]},
+  { cat:"五行宗师", list:[
+    { icon:"🔥", name:"火型宗师",  desc:"以火型风格赢得50场",        done:true  },
+    { icon:"🌊", name:"水型宗师",  desc:"以水型风格赢得50场",        done:false },
+    { icon:"🌳", name:"木型宗师",  desc:"以木型风格赢得50场",        done:false },
+    { icon:"⚡", name:"金型宗师",  desc:"以金型风格赢得50场",        done:false },
+    { icon:"🗻", name:"土型宗师",  desc:"以土型风格赢得50场",        done:false },
+    { icon:"☯️", name:"五行归一",  desc:"五型各胜10场",              done:false },
+  ]},
+  { cat:"赛场传奇", list:[
+    { icon:"🎯", name:"百场老将",  desc:"累计参赛100场",             done:false },
+    { icon:"⚡", name:"连胜风暴",  desc:"单次连赢10场",              done:true  },
+    { icon:"🛡️", name:"铁壁防线",  desc:"连续10场无三连失",          done:false },
+    { icon:"🌟", name:"赛事冠军",  desc:"赢得任意官方赛事冠军",      done:false },
+  ]},
+];
+
+/* ────── SCORE→LEVEL ────── */
+function scoreToLevel(s){ return Math.min(100, Math.max(1, Math.floor((s-1000)/10))); }
+function levelColor(lv){
+  if(lv<=20) return tiers[0].color;
+  if(lv<=40) return tiers[1].color;
+  if(lv<=60) return tiers[2].color;
+  if(lv<=80) return tiers[3].color;
+  return tiers[4].color;
+}
+function levelTierName(lv){
+  for(const t of tiers) if(lv>=t.range[0]&&lv<=t.range[1]) return t.name;
+  return ""; 
+}
+
+/* ────── CONVERTER ────── */
+function updateConverter(s){
+  s=+s;
+  const lv=scoreToLevel(s);
+  const pct=Math.round((s-1000)/12)+'%';
+  document.getElementById('score-slider').style.setProperty('--pct',pct);
+  document.getElementById('conv-score-num').textContent=s;
+  document.getElementById('conv-lv-num').textContent=lv;
+  document.getElementById('conv-lv-num').style.color=levelColor(lv);
+  const badge=document.getElementById('conv-badge');
+  const tn=levelTierName(lv);
+  badge.textContent=tn;
+  badge.style.background=levelColor(lv)+'22';
+  badge.style.color=levelColor(lv);
+  badge.style.border='1px solid '+levelColor(lv)+'55';
+  document.getElementById('hero-lv-display').textContent='第 '+lv+' 级';
+  // highlight tier card
+  document.querySelectorAll('.tier-card').forEach((c,i)=>{
+    const t=tiers[i];
+    c.style.borderColor=lv>=t.range[0]&&lv<=t.range[1]?t.color:'' ;
+  });
+}
+
+/* ────── TIER CARDS ────── */
+function buildTiers(){
+  const g=document.getElementById('tier-grid');
+  tiers.forEach((t,i)=>{
+    const maxFill=(i+1)/tiers.length*100;
+    g.innerHTML+=`
+      <div class="tier-card" style="--tc:${t.color};--tc-border:${t.color}">
+        <span class="tier-icon">${t.icon}</span>
+        <div class="tier-name" style="color:${t.color}">${t.name}</div>
+        <div class="tier-range">${t.range[0]}级 — ${t.range[1]}级</div>
+        <div class="tier-score">开球网 ${t.score[0]}–${t.score[1]} 分</div>
+        <div class="tier-bar"><div class="tier-fill" style="width:${maxFill}%;background:${t.color}"></div></div>
+      </div>`;
+  });
+}
+
+/* ────── RULER ────── */
+function buildRuler(){
+  const r=document.getElementById('ruler');
+  for(let lv=1;lv<=100;lv++){
+    const c=levelColor(lv);
+    const score=1000+lv*10;
+    const isMarker=[10,20,30,40,50,60,70,80,90,100].includes(lv);
+    const h=24+lv*0.28;
+    const seg=document.createElement('div');
+    seg.className='ruler-seg'+(isMarker?' marker':'');
+    seg.title=`第${lv}级 ≈ ${score}分`;
+    seg.innerHTML=`
+      <div style="width:100%;height:${h}px;background:${c};border-radius:3px;opacity:${0.4+lv*0.006}"></div>
+      ${isMarker?`<div class="ruler-label">${lv}</div>`:''}
+    `;
+    seg.onclick=()=>{ document.getElementById('score-slider').value=score; updateConverter(score); showNotif('📊',`第 ${lv} 级（≈${score}分）`); };
+    r.appendChild(seg);
+  }
+}
+
+/* ────── CHART ────── */
+function buildChart(){
+  const svg=document.getElementById('chart-svg');
+  // fake history data
+  const pts=[38,39,38,40,41,39,42,43,42,44,43,45,44,46,48,47,49,50];
+  const W=700,H=140,pad=30;
+  const minV=Math.min(...pts)-3, maxV=Math.max(...pts)+3;
+  const xs=pts.map((_,i)=>pad+i*(W-2*pad)/(pts.length-1));
+  const ys=pts.map(v=>H-pad-(v-minV)/(maxV-minV)*(H-2*pad));
+  // area
+  let path=`M${xs[0]} ${H-pad} L${xs[0]} ${ys[0]}`;
+  for(let i=1;i<pts.length;i++){
+    const cpx=(xs[i-1]+xs[i])/2;
+    path+=` C${cpx} ${ys[i-1]} ${cpx} ${ys[i]} ${xs[i]} ${ys[i]}`;
+  }
+  path+=` L${xs[pts.length-1]} ${H-pad} Z`;
+  // line
+  let line=`M${xs[0]} ${ys[0]}`;
+  for(let i=1;i<pts.length;i++){
+    const cpx=(xs[i-1]+xs[i])/2;
+    line+=` C${cpx} ${ys[i-1]} ${cpx} ${ys[i]} ${xs[i]} ${ys[i]}`;
+  }
+  svg.innerHTML=`
+    <defs>
+      <linearGradient id="cg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${var_jin}" stop-opacity=".3"/>
+        <stop offset="100%" stop-color="${var_jin}" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <path d="${path}" fill="url(#cg)"/>
+    <path d="${line}" fill="none" stroke="${var_jin}" stroke-width="2" stroke-linecap="round"/>
+    ${xs.map((x,i)=>`<circle cx="${x}" cy="${ys[i]}" r="3" fill="${var_jin}" opacity=".7"/>`).join('')}
+    ${[0,Math.floor(pts.length/2),pts.length-1].map(i=>`
+      <text x="${xs[i]}" y="${ys[i]-10}" text-anchor="middle"
+        style="font-size:10px;fill:#A8A49C;font-family:'DM Mono',monospace">${pts[i]}级</text>
+    `).join('')}
+  `;
+}
+const var_jin='#C8A84B';
+
+/* ────── SELF RATE ────── */
+let selSR=null;
+function buildSelfRate(){
+  const opts=[
+    {lv:10,name:"新手入门"},{lv:20,name:"业余爱好"},{lv:30,name:"俱乐部级"},
+    {lv:50,name:"赛事常客"},{lv:70,name:"省级高手"},{lv:90,name:"职业水准"},
+  ];
+  const c=document.getElementById('self-opts');
+  opts.forEach(o=>{
+    const d=document.createElement('div');
+    d.className='sr-opt';
+    d.innerHTML=`<div class="sr-lv">${o.lv}</div><div class="sr-name">${o.name}</div>`;
+    d.onclick=()=>{ selSR=o.lv; document.querySelectorAll('.sr-opt').forEach(x=>x.classList.remove('sel')); d.classList.add('sel'); document.getElementById('sr-confirm').style.opacity='1'; };
+    c.appendChild(d);
+  });
+}
+
+function confirmSelfRate(){
+  if(!selSR) return;
+  showNotif('✅',`自评等级已设为第 ${selSR} 级，可随时修改！`);
+}
+
+/* ────── BIND KAIQIU ────── */
+async function bindKaiqiu(){
+  if (!Auth.requireAuth()) return;
+
+  const inp = document.getElementById('kq-input');
+  const v   = inp.value.trim();
+  if (!v) { inp.style.borderColor='var(--huo)'; showNotif('⚠️','请输入开球网用户名'); inp.focus(); return; }
+  inp.style.borderColor = '';
+
+  const btn = document.querySelector('.btn-bind');
+  const origText = btn.textContent;
+  btn.textContent = '验证中…'; btn.disabled = true; btn.style.opacity = '.6';
+
+  try {
+    const result = await API.bindKaiqiu(v);
+
+    document.getElementById('br-av').textContent      = result.nickname?.[0] || v[0];
+    document.getElementById('br-name').textContent    = result.nickname || v;
+    document.getElementById('br-sc').textContent      = result.kaiqiu_score;
+    document.getElementById('br-lv-show').textContent = '≈ 第 ' + result.level + ' 级';
+    document.getElementById('br-meta').textContent    =
+      `开球网 ID: ${v} · 已认证 · 同步于 ${new Date().toLocaleString('zh-CN',{hour12:false})}`;
+    document.getElementById('bind-result').classList.add('show');
+
+    updateConverter(result.kaiqiu_score);
+    showNotif('🎉', `绑定成功！你的等级更新为第 ${result.level} 级`);
+
+  } catch (err) {
+    showNotif('❌', window.handleError ? window.handleError(err) : err.message);
+  } finally {
+    btn.textContent = origText; btn.disabled = false; btn.style.opacity = '1';
+  }
+}
+
+
+/* ────── ACHIEVEMENTS ────── */
+function buildAchievements(){
+  const sec=document.getElementById('ach-sections');
+  achievements.forEach(cat=>{
+    const done=cat.list.filter(a=>a.done).length;
+    sec.innerHTML+=`
+      <div style="margin-bottom:32px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <h3 style="font-family:'Noto Serif SC',serif;font-size:17px;">${cat.cat}</h3>
+          <span style="font-size:12px;color:var(--text3);font-family:'DM Mono',monospace">${done}/${cat.list.length}</span>
+        </div>
+        <div class="ach-grid">
+          ${cat.list.map(a=>`
+            <div class="ach ${a.done?'unlocked':''}" title="${a.desc}">
+              <span class="ach-icon" style="${!a.done?'filter:grayscale(1);opacity:.4':''}">${a.icon}</span>
+              <span>${a.name}</span>
+              ${a.done?'<span style="font-size:10px;color:var(--jin);margin-left:4px">✓</span>':''}
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  });
+}
+
+/* ────── TABS ────── */
+function showTab(i){
+  [0,1,2].forEach(j=>{
+    document.getElementById('tab'+j).style.display=j===i?'':'none';
+    document.querySelectorAll('.nav-tab')[j].classList.toggle('active',j===i);
+  });
+}
+
+/* ────── NOTIFICATION ────── */
+function showNotif(icon,msg){
+  const n=document.getElementById('notif');
+  document.getElementById('notif-icon').textContent=icon;
+  document.getElementById('notif-msg').textContent=msg;
+  n.classList.add('show');
+  setTimeout(()=>n.classList.remove('show'),3000);
+}
+
+/* ────── INIT ────── */
+buildTiers();
+buildRuler();
+buildChart();
+buildSelfRate();
+buildAchievements();
+updateConverter(1400);
+</script>
+
+<script>
+(function(){
+  var links = document.querySelectorAll('#g-nav .gn');
+  links.forEach(function(a){
+    if(a.textContent.indexOf('等级') >= 0 || a.id === '等级'){
+      a.style.color = '#C8A84B';
+      a.style.borderBottom = '2px solid #C8A84B';
+    }
+  });
+  if('等级' === 'gnav-home'){
+    var logo = document.getElementById('gnav-home');
+    if(logo) logo.style.opacity = '1';
+  }
+})();
+</script>
+</body>
+</html>
